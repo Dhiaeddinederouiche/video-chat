@@ -85,6 +85,8 @@
             gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
+            max-height: 120px;
+            overflow-y: auto;
         }
 
         button {
@@ -479,14 +481,30 @@
             right: -10px;
         }
 
-        .theme-toggle {
-            background: #2196F3;
+        .chat-toggle {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .chat-section.collapsed {
+            height: 50px;
+            overflow: hidden;
+        }
+
+        .chat-section.collapsed .chat-messages,
+        .chat-section.collapsed .chat-input-area,
+        .chat-section.collapsed .emoji-picker {
+            display: none;
         }
 
         body.dark-mode {
@@ -523,57 +541,126 @@
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
+                height: 100vh;
             }
 
             .chat-section {
                 width: 100%;
-                height: 200px;
+                height: 250px;
+                order: 2;
             }
 
             .video-section {
                 flex: 1;
-            }
-
-            .emoji-picker {
-                max-width: 150px;
-            }
-
-            .controls button {
-                padding: 10px 15px;
-                font-size: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .video-container {
-                flex-direction: column;
-            }
-
-            .video-box {
-                height: 40vh;
-            }
-
-            .chat-section {
-                height: 150px;
+                order: 1;
             }
 
             .controls {
-                padding: 15px;
+                padding: 10px;
+                gap: 8px;
+                justify-content: center;
                 flex-wrap: wrap;
-                gap: 10px;
             }
 
             .controls button {
                 padding: 8px 12px;
                 font-size: 11px;
+                min-width: 80px;
             }
 
-            .chat-input-area input {
-                font-size: 12px;
+            .emoji-picker {
+                max-width: 150px;
+                bottom: 60px;
             }
 
             .chat-messages {
+                max-height: 150px;
+                overflow-y: auto;
+            }
+
+            .chat-input-area {
+                padding: 10px;
+            }
+
+            .chat-input-area input {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+
+            .chat-input-area button {
+                padding: 8px 16px;
                 font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                height: 100vh;
+            }
+
+            .video-container {
+                flex-direction: column;
+                gap: 5px;
+                padding: 5px;
+            }
+
+            .video-box {
+                height: 35vh;
+                min-height: 200px;
+            }
+
+            .chat-section {
+                height: 200px;
+            }
+
+            .controls {
+                padding: 8px;
+                gap: 6px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+                max-height: none;
+                overflow: visible;
+            }
+
+            .controls button {
+                padding: 6px 10px;
+                font-size: 10px;
+                min-width: auto;
+                width: 100%;
+            }
+
+            .chat-messages {
+                max-height: 120px;
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .chat-input-area input {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+
+            .chat-input-area button {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+
+            .chat-header {
+                padding: 15px;
+                font-size: 14px;
+            }
+
+            .stats {
+                font-size: 11px;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+
+            .chat-toggle {
+                display: block;
             }
         }
     </style>
@@ -608,6 +695,7 @@
         </div>
 
         <div class="chat-section">
+            <button class="chat-toggle" id="chatToggle">💬</button>
             <div class="chat-header">
                 <div class="header-info">
                     <div>💬 الرسائل (Messages)</div>
@@ -713,8 +801,8 @@
         const emojiPicker = document.getElementById('emojiPicker');
         const callTimer = document.getElementById('callTimer');
         const recordingIndicator = document.getElementById('recordingIndicator');
-        const onlineCount = document.getElementById('onlineCount');
-        const messageCountBadge = document.getElementById('messageCountBadge');
+        const chatToggle = document.getElementById('chatToggle');
+        const chatSection = document.querySelector('.chat-section');
 
         // Socket.io connection
         const socket = io();
@@ -1049,6 +1137,26 @@
             document.body.classList.add('dark-mode');
             darkModeBtn.textContent = '☀️';
         }
+
+        // Chat Toggle for Mobile
+        chatToggle.addEventListener('click', () => {
+            chatSection.classList.toggle('collapsed');
+            chatToggle.textContent = chatSection.classList.contains('collapsed') ? '⬆️' : '💬';
+        });
+
+        // Show chat toggle on mobile
+        if (window.innerWidth <= 768) {
+            chatToggle.style.display = 'block';
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                chatToggle.style.display = 'block';
+            } else {
+                chatToggle.style.display = 'none';
+                chatSection.classList.remove('collapsed');
+            }
+        });
 
         // Call Timer
         function startCallTimer() {

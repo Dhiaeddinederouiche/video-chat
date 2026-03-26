@@ -681,6 +681,12 @@
         // Socket.io connection
         const socket = io();
 
+        // Check for HTTPS requirement
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            alert('الكاميرا تتطلب اتصال آمن (HTTPS). يرجى استخدام HTTPS أو localhost.');
+            startBtn.disabled = true;
+        }
+
         // State
         let localStream = null;
         let peerConnection = null;
@@ -708,6 +714,12 @@
             ]
         };
 
+        // Check for media devices support
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('متصفحك لا يدعم الوصول إلى الكاميرا. يرجى تحديث المتصفح.');
+            startBtn.disabled = true;
+        }
+
         // Start Camera
         startBtn.addEventListener('click', async () => {
             try {
@@ -726,7 +738,17 @@
                 updateStatus('جاهز - In Ready Mode', 'disconnected');
                 addMessage('System: Your camera is ready! Waiting to connect...', 'system');
             } catch (error) {
-                alert('خطأ في الوصول إلى الكاميرا: ' + error.message);
+                let errorMessage = 'خطأ في الوصول إلى الكاميرا: ';
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'يرجى السماح بالوصول إلى الكاميرا والميكروفون.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'لم يتم العثور على كاميرا أو ميكروفون.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage += 'الكاميرا أو الميكروفون مستخدم من تطبيق آخر.';
+                } else {
+                    errorMessage += error.message;
+                }
+                alert(errorMessage);
                 console.error('Camera error:', error);
             }
         });

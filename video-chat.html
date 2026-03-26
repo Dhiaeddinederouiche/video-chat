@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دردشة كاميرا - Chat Video</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .video-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            position: relative;
+        }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .video-box {
+            flex: 1;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        .controls {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #da190b;
+            transform: scale(1.05);
+        }
+
+        .btn-skip {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-skip:hover {
+            background: #e68900;
+            transform: scale(1.05);
+        }
+
+        .btn-toggle {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-toggle:hover {
+            background: #0b7dda;
+            transform: scale(1.05);
+        }
+
+        .chat-section {
+            width: 320px;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ddd;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .stats {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            padding: 10px 12px;
+            border-radius: 10px;
+            word-wrap: break-word;
+            max-width: 100%;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .message.own {
+            background: #667eea;
+            color: white;
+            align-self: flex-end;
+            text-align: right;
+            max-width: 90%;
+        }
+
+        .message.other {
+            background: #e0e0e0;
+            color: #333;
+            align-self: flex-start;
+            max-width: 90%;
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-input-area button {
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .chat-input-area button:hover {
+            background: #5568d3;
+        }
+
+        .status {
+            background: #fff3cd;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            margin-left: 5px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .no-user {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-modal:hover {
+            color: #000;
+        }
+
+        .setting-group {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .setting-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .setting-group input[type="checkbox"],
+        .setting-group input[type="range"] {
+            cursor: pointer;
+        }
+
+        .recording-indicator {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: blink 1s infinite;
+            z-index: 20;
+        }
+
+        .recording-indicator.active {
+            display: block;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 20;
+        }
+
+        .emoji-picker {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            right: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .emoji-picker.show {
+            display: grid;
+        }
+
+        .emoji-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .emoji-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .quality-selector {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .quality-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .quality-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message-counter {
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+
+        .theme-toggle {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        body.dark-mode .container {
+            background: #1e1e1e;
+        }
+
+        body.dark-mode .chat-section {
+            background: #252525;
+        }
+
+        body.dark-mode .chat-messages {
+            background: #1e1e1e;
+        }
+
+        body.dark-mode .message.other {
+            background: #333;
+            color: #fff;
+        }
+
+        body.dark-mode .chat-input-area {
+            border-top-color: #444;
+        }
+
+        body.dark-mode .chat-input-area input {
+            background: #333;
+            color: #fff;
+            border-color: #444;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .chat-section {
+                width: 100%;
+                height: 200px;
+            }
+
+            .video-section {
+                flex: 1;
+            }
+
+            .emoji-picker {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-section">
+            <div class="video-container">
+                <div class="video-box">
+                    <video id="localVideo" muted playsinline></video>
+                    <span class="video-label">أنت (You)</span>
+                    <div class="recording-indicator" id="recordingIndicator">🔴 Recording</div>
+                    <div class="timer" id="callTimer">00:00</div>
+                </div>
+                <div class="video-box">
+                    <video id="remoteVideo" playsinline></video>
+                    <span class="video-label">الشخص الآخر (Other)</span>
+                    <div class="no-user" id="noUserMessage">في انتظار شخص...</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn-start" id="startBtn">ابدأ الكاميرا</button>
+                <button class="btn-stop" id="stopBtn" disabled>إيقاف البث</button>
+                <button class="btn-skip" id="skipBtn" disabled>تخطي</button>
+                <button class="btn-toggle" id="cameraToggle" disabled>إيقاف الكاميرا</button>
+                <button class="btn-toggle" id="micToggle" disabled>إيقاف الصوت</button>
+                <button class="btn-toggle" id="recordBtn" disabled style="background: #9C27B0;">🔴 Record</button>
+                <button class="btn-toggle" id="screenshotBtn" disabled style="background: #FF5722;">📸 Screenshot</button>
+                <button class="btn-toggle" id="emojiBtn" disabled style="background: #FFC107; color: #000;">😊 Emoji</button>
+                <button class="settings-btn" id="settingsBtn">⚙️</button>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="header-info">
+                    <div>💬 الرسائل (Messages)</div>
+                    <div class="stats">
+                        <span id="onlineCount">0</span> متصل | 
+                        <span id="messageCountBadge">0</span> رسائل
+                    </div>
+                </div>
+                <button class="settings-btn" id="darkModeBtn">🌙</button>
+            </div>
+            <div class="status disconnected" id="status">
+                غير متصل
+                <span class="loading"></span>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="emoji-picker" id="emojiPicker">
+                <button class="emoji-btn">😊</button>
+                <button class="emoji-btn">❤️</button>
+                <button class="emoji-btn">👍</button>
+                <button class="emoji-btn">🔥</button>
+                <button class="emoji-btn">😂</button>
+                <button class="emoji-btn">🎉</button>
+                <button class="emoji-btn">✨</button>
+                <button class="emoji-btn">👋</button>
+            </div>
+            <div class="chat-input-area">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="اكتب رسالة..." 
+                    disabled
+                >
+                <button id="sendBtn" disabled>إرسال</button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <span class="close-modal" id="closeSettings">&times;</span>
+                <h2>⚙️ الإعدادات</h2>
+                
+                <div class="setting-group">
+                    <h3>جودة الفيديو</h3>
+                    <div class="quality-selector">
+                        <button class="quality-btn active" data-quality="720">720p</button>
+                        <button class="quality-btn" data-quality="480">480p</button>
+                        <button class="quality-btn" data-quality="360">360p</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="soundToggle" checked>
+                        تأثيرات صوتية
+                    </label>
+                    <label>
+                        <input type="checkbox" id="notificationToggle" checked>
+                        إشعارات
+                    </label>
+                    <label>
+                        <input type="checkbox" id="vibrationToggle" checked>
+                        اهتزاز
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>مستوى الصوت</h3>
+                    <input type="range" id="volumeControl" min="0" max="100" value="100">
+                </div>
+
+                <div class="setting-group">
+                    <button style="width: 100%; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        مسح السجل التاريخي
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // DOM Elements
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const cameraToggle = document.getElementById('cameraToggle');
+        const micToggle = document.getElementById('micToggle');
+        const recordBtn = document.getElementById('recordBtn');
+        const screenshotBtn = document.getElementById('screenshotBtn');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const status = document.getElementById('status');
+        const noUserMessage = document.getElementById('noUserMessage');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettings = document.getElementById('closeSettings');
+        const darkModeBtn = document.getElementById('darkModeBtn');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const callTimer = document.getElementById('callTimer');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        const onlineCount = document.getElementById('onlineCount');
+        const messageCountBadge = document.getElementById('messageCountBadge');
+
+        // Socket.io connection
+        const socket = io();
+
+        // State
+        let localStream = null;
+        let peerConnection = null;
+        let isCameraOn = true;
+        let isMicOn = true;
+        let isConnected = false;
+        let dataChannel = null;
+        let partnerId = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        let callStartTime = null;
+        let timerInterval = null;
+        let messageCount = 0;
+        let videoQuality = '720';
+        let soundEnabled = true;
+        let vibrationEnabled = true;
+
+        // Configuration
+        const peerConfig = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        };
+
+        // Start Camera
+        startBtn.addEventListener('click', async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                });
+                localVideo.srcObject = localStream;
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                skipBtn.disabled = false;
+                cameraToggle.disabled = false;
+                micToggle.disabled = false;
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                updateStatus('جاهز - In Ready Mode', 'disconnected');
+                addMessage('System: Your camera is ready! Waiting to connect...', 'system');
+            } catch (error) {
+                alert('خطأ في الوصول إلى الكاميرا: ' + error.message);
+                console.error('Camera error:', error);
+            }
+        });
+
+        // Socket.io Events
+        socket.on('waiting', (data) => {
+            updateStatus('في انتظار شخص آخر...', 'disconnected');
+            addMessage('النظام: ' + data.message, 'system');
+        });
+
+        socket.on('user-connected', async (data) => {
+            console.log('User connected:', data.partnerId);
+            partnerId = data.partnerId;
+            isConnected = true;
+            noUserMessage.style.display = 'none';
+            updateStatus('متصل بشخص ما ✓', 'connected');
+            addMessage('System: Connected to a random person!', 'system');
+            startCallTimer();
+            recordBtn.disabled = false;
+            screenshotBtn.disabled = false;
+            emojiBtn.disabled = false;
+            playSound('record');
+            showNotification('👋 You are connected!');
+            messageCount = 0;
+            messageCountBadge.textContent = '0';
+            
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
+            }
+            
+            // Create peer connection
+            await createPeerConnection();
+            
+            // Only the user who was waiting creates the offer
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('offer', { to: partnerId, offer });
+        });
+
+        socket.on('offer', async (data) => {
+            console.log('Received offer from:', data.from);
+            
+            if (!peerConnection) {
+                await createPeerConnection();
+            }
+            
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer', { to: data.from, answer });
+        });
+
+        socket.on('answer', async (data) => {
+            console.log('Received answer from:', data.from);
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        });
+
+        socket.on('ice-candidate', async (data) => {
+            console.log('Received ICE candidate from:', data.from);
+            try {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (error) {
+                console.error('Error adding ICE candidate:', error);
+            }
+        });
+
+        socket.on('message', (data) => {
+            addMessage(data.text, 'other');
+        });
+
+        socket.on('user-disconnected', (data) => {
+            console.log('User disconnected:', data.message);
+            disconnectUser();
+        });
+
+        // Stop Camera
+        stopBtn.addEventListener('click', () => {
+            disconnectUser();
+            socket.disconnect();
+            updateStatus('متوقف - Stopped', 'disconnected');
+        });
+
+        // Toggle Camera
+        cameraToggle.addEventListener('click', () => {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                isCameraOn = !isCameraOn;
+                videoTrack.enabled = isCameraOn;
+                cameraToggle.textContent = isCameraOn ? 'إيقاف الكاميرا' : 'تشغيل الكاميرا';
+                cameraToggle.style.background = isCameraOn ? '#2196F3' : '#f44336';
+            }
+        });
+
+        // Toggle Microphone
+        micToggle.addEventListener('click', () => {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                isMicOn = !isMicOn;
+                audioTrack.enabled = isMicOn;
+                micToggle.textContent = isMicOn ? 'إيقاف الصوت' : 'تشغيل الصوت';
+                micToggle.style.background = isMicOn ? '#2196F3' : '#f44336';
+            }
+        });
+
+        // Skip User
+        skipBtn.addEventListener('click', () => {
+            socket.emit('skip');
+            disconnectUser();
+            chatMessages.innerHTML = '';
+            updateStatus('في البحث عن شخص جديد...', 'disconnected');
+            addMessage('System: Skipped! Looking for another person...', 'system');
+        });
+
+        // Recording
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        async function startRecording() {
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 1280;
+                canvas.height = 720;
+
+                const stream = new MediaStream();
+                
+                if (localStream) {
+                    localStream.getVideoTracks().forEach(track => stream.addTrack(track));
+                    localStream.getAudioTracks().forEach(track => stream.addTrack(track));
+                }
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                recordedChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    recordedChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `chat_${Date.now()}.webm`;
+                    a.click();
+                    playSound('download');
+                    showNotification('Video recorded and saved!');
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordBtn.textContent = '⏹️ Stop Recording';
+                recordingIndicator.classList.add('active');
+                playSound('record');
+                showNotification('Recording started...');
+            } catch (error) {
+                console.error('Recording error:', error);
+                alert('خطأ في التسجيل: ' + error.message);
+            }
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            isRecording = false;
+            recordBtn.textContent = '🔴 Record';
+            recordingIndicator.classList.remove('active');
+            playSound('stop');
+        }
+
+        // Screenshot
+        screenshotBtn.addEventListener('click', () => {
+            captureScreenshot();
+        });
+
+        function captureScreenshot() {
+            const canvas = document.createElement('canvas');
+            canvas.width = localVideo.videoWidth;
+            canvas.height = localVideo.videoHeight;
+            canvas.getContext('2d').drawImage(localVideo, 0, 0);
+
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `screenshot_${Date.now()}.png`;
+                a.click();
+                playSound('camera');
+                showNotification('📸 Screenshot saved!');
+            });
+        }
+
+        // Emoji Picker
+        emojiBtn.addEventListener('click', () => {
+            emojiPicker.classList.toggle('show');
+        });
+
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                messageInput.value += e.target.textContent;
+                messageInput.focus();
+                emojiPicker.classList.remove('show');
+            });
+        });
+
+        // Settings Modal
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
+            }
+        });
+
+        // Quality Buttons
+        document.querySelectorAll('.quality-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                videoQuality = e.target.dataset.quality;
+                showNotification(`Video quality changed to ${videoQuality}p`);
+            });
+        });
+
+        // Sound Toggle
+        document.getElementById('soundToggle').addEventListener('change', (e) => {
+            soundEnabled = e.target.checked;
+        });
+
+        // Vibration Toggle
+        document.getElementById('vibrationToggle').addEventListener('change', (e) => {
+            vibrationEnabled = e.target.checked;
+        });
+
+        // Volume Control
+        document.getElementById('volumeControl').addEventListener('change', (e) => {
+            const volume = e.target.value / 100;
+            remoteVideo.volume = volume;
+        });
+
+        // Dark Mode
+        darkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            darkModeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeBtn.textContent = '☀️';
+        }
+
+        // Call Timer
+        function startCallTimer() {
+            callStartTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                callTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopCallTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                callTimer.textContent = '00:00';
+            }
+        }
+
+        // Sound effects
+        function playSound(type) {
+            if (!soundEnabled) return;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            switch (type) {
+                case 'record':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    break;
+                case 'stop':
+                    oscillator.frequency.value = 400;
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    break;
+                case 'camera':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+                case 'download':
+                    oscillator.frequency.value = 1200;
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    break;
+            }
+        }
+
+        // Notifications
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Update online count
+        socket.on('stats-update', (data) => {
+            onlineCount.textContent = data.onlineUsers || 0;
+        });
+
+        // Send Message
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
+
+            addMessage(message, 'own');
+            messageInput.value = '';
+
+            if (partnerId) {
+                socket.emit('message', { text: message });
+            }
+        }
+
+        // Create Peer Connection
+        async function createPeerConnection() {
+            if (peerConnection) return;
+
+            peerConnection = new RTCPeerConnection(peerConfig);
+
+            // Add local stream tracks
+            if (localStream) {
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+            }
+
+            // Handle remote stream
+            peerConnection.ontrack = (event) => {
+                console.log('Received remote track:', event.track.kind);
+                if (remoteVideo.srcObject !== event.streams[0]) {
+                    remoteVideo.srcObject = event.streams[0];
+                    noUserMessage.style.display = 'none';
+                }
+            };
+
+            // Handle ICE candidates
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('ice-candidate', { 
+                        to: partnerId, 
+                        candidate: event.candidate 
+                    });
+                }
+            };
+
+            // Connection state logging
+            peerConnection.onconnectionstatechange = () => {
+                console.log('Connection state:', peerConnection.connectionState);
+            };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log('ICE connection state:', peerConnection.iceConnectionState);
+            };
+        }
+
+        // Disconnect User
+        function disconnectUser() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            if (isRecording) {
+                stopRecording();
+            }
+            remoteVideo.srcObject = null;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            skipBtn.disabled = true;
+            cameraToggle.disabled = true;
+            micToggle.disabled = true;
+            recordBtn.disabled = true;
+            screenshotBtn.disabled = true;
+            emojiBtn.disabled = true;
+            isConnected = false;
+            partnerId = null;
+            noUserMessage.style.display = 'flex';
+            localVideo.srcObject = null;
+            stopCallTimer();
+            recordingIndicator.classList.remove('active');
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            if (sender === 'other') {
+                messageCount++;
+                messageCountBadge.textContent = messageCount;
+                playSound('camera');
+            }
+        }
+
+        function updateStatus(text, className) {
+            status.textContent = text;
+            status.className = `status ${className}`;
+        }
+
+        // Initialize
+        addMessage('اضغط "ابدأ الكاميرا" للبدء - Click "ابدأ الكاميرا" to start', 'system');
+    </script>
+</body>
+</html>

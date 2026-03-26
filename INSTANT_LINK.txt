@@ -1,0 +1,16 @@
+# dعرض سريع Replit
+
+افتح هذا الرابط:
+https://replit.com/new/nodejs
+
+1. اختر "Node.js"
+2. اكتب اسم: `video-chat`
+3. اضغط "Create Repl"
+
+بعدين انسخ والصق ملفاتنا:
+
+**server.js** - copy paste من ملفك
+**video-chat.html** - copy paste من ملفك
+**package.json** - copy paste من ملفك
+
+بعدها اضغط "Run" وReplilt سيعطيك رابط مباشر!

@@ -63,7 +63,8 @@
         video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            background: black;
         }
 
         .video-label {
@@ -401,6 +402,20 @@
             gap: 5px;
             max-width: 200px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+        }
+
+        @media (max-width: 480px) {
+            .emoji-picker {
+                position: static;
+                width: 100%;
+                max-width: 100%;
+                border: 1px solid #ddd;
+                margin: 8px 0;
+                grid-template-columns: repeat(6, minmax(30px, 1fr));
+                bottom: auto;
+                right: auto;
+            }
         }
 
         .emoji-picker.show {
@@ -816,6 +831,24 @@
         // State
         let localStream = null;
         let peerConnection = null;
+        let videoQuality = '720';
+
+        function getVideoConstraints() {
+            let width = 1280, height = 720;
+            if (videoQuality === '480') {
+                width = 854; height = 480;
+            } else if (videoQuality === '360') {
+                width = 640; height = 360;
+            }
+            return {
+                video: {
+                    width: { ideal: width },
+                    height: { ideal: height },
+                    facingMode: 'user'
+                },
+                audio: true
+            };
+        }
         let isCameraOn = true;
         let isMicOn = true;
         let isConnected = false;
@@ -849,10 +882,7 @@
         // Start Camera
         startBtn.addEventListener('click', async () => {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                });
+                localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
                 localVideo.srcObject = localStream;
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
@@ -1072,16 +1102,32 @@
         }
 
         // Emoji Picker
-        emojiBtn.addEventListener('click', () => {
+        emojiBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
             emojiPicker.classList.toggle('show');
         });
 
         document.querySelectorAll('.emoji-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 messageInput.value += e.target.textContent;
                 messageInput.focus();
                 emojiPicker.classList.remove('show');
             });
+        });
+
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiBtn) {
+                emojiPicker.classList.remove('show');
+            }
+        });
+
+        // Close emoji picker on Escape
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                emojiPicker.classList.remove('show');
+            }
         });
 
         // Settings Modal
@@ -1101,11 +1147,38 @@
 
         // Quality Buttons
         document.querySelectorAll('.quality-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 videoQuality = e.target.dataset.quality;
                 showNotification(`Video quality changed to ${videoQuality}p`);
+
+                if (localStream) {
+                    // Re-apply stream at new quality
+                    localStream.getTracks().forEach(track => track.stop());
+                    try {
+                        localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
+                        localVideo.srcObject = localStream;
+                        if (!peerConnection) return;
+                        // Update existing peer connection tracks
+                        const senders = peerConnection.getSenders();
+                        const videoTrack = localStream.getVideoTracks()[0];
+                        const audioTrack = localStream.getAudioTracks()[0];
+
+                        if (videoTrack) {
+                            const sender = senders.find(s => s.track && s.track.kind === 'video');
+                            if (sender) sender.replaceTrack(videoTrack);
+                        }
+
+                        if (audioTrack) {
+                            const sender = senders.find(s => s.track && s.track.kind === 'audio');
+                            if (sender) sender.replaceTrack(audioTrack);
+                        }
+
+                    } catch (error) {
+                        console.error('Error updating video quality:', error);
+                    }
+                }
             });
         });
 

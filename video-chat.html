@@ -514,9 +514,17 @@
             }
         });
 
-        socket.on('message', (data) => {
-            console.log('received message event:', data);
+        socket.on('chat-message', (data) => {
+            console.log('received chat-message event:', data);
             addMessage(data.text, 'other');
+        });
+
+        socket.on('message', (data) => {
+            // backward compatibility if server still uses message
+            console.log('received fallback message event:', data);
+            if (data && data.text) {
+                addMessage(data.text, 'other');
+            }
         });
 
         socket.on('user-disconnected', (data) => {
@@ -589,11 +597,11 @@
                 return;
             }
 
-            console.log('sending message', { message, partnerId });
+            console.log('sending chat-message', { message, partnerId });
             addMessage(message, 'own');
             messageInput.value = '';
 
-            socket.emit('message', { text: message });
+            socket.emit('chat-message', { text: message });
         }
 
         function addMessage(text, sender) {

@@ -37,40 +37,57 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
-    
-    // Broadcast initial stats
+
+    // Broadcast initial stats (include this socket)
     io.emit('stats-update', { onlineUsers: users.size + 1 });
-    
-    // Add user to waiting queue
+
+    // Register user without matching until they tap "ابدأ الدردشة"
     users.set(socket.id, {
         id: socket.id,
         connectedWith: null,
-        socket: socket
+        socket: socket,
+        ready: false
     });
-    
-    // Try to match with waiting user
-    if (waitingQueue.length > 0) {
-        const partnerId = waitingQueue.shift();
-        const partner = users.get(partnerId);
-        
-        if (partner) {
-            // Create connection between two users
-            const user1 = users.get(socket.id);
-            user1.connectedWith = partnerId;
-            partner.connectedWith = socket.id;
-            
-            console.log(`Matched: ${socket.id} <-> ${partnerId}`);
-            
-            // Notify both users with role assignment to avoid glare offer/answer collisions
-            // New socket acts as initiator (caller), existing waiting partner as callee.
-            socket.emit('user-connected', { partnerId, initiator: true });
-            io.to(partnerId).emit('user-connected', { partnerId: socket.id, initiator: false });
+
+    // Notify the client it is connected and should press start
+    socket.emit('connected', { message: 'تم الاتصال بالخادم. اضغط ابدأ الدردشة.' });
+
+    // Handle join request from client
+    socket.on('join', () => {
+        const user = users.get(socket.id);
+        if (!user || user.ready) return;
+
+        user.ready = true;
+
+        // If user is already connected to someone else, ignore join
+        if (user.connectedWith) return;
+
+        // Try to match with waiting partner
+        if (waitingQueue.length > 0) {
+            const partnerId = waitingQueue.shift();
+            const partner = users.get(partnerId);
+
+            if (partner && partner.ready && !partner.connectedWith) {
+                user.connectedWith = partnerId;
+                partner.connectedWith = socket.id;
+
+                console.log(`Matched: ${socket.id} <-> ${partnerId}`);
+
+                socket.emit('user-connected', { partnerId, initiator: true });
+                io.to(partnerId).emit('user-connected', { partnerId: socket.id, initiator: false });
+                return;
+            }
+
+            // partner not suitable, try finding next in queue recursively
+            if (partner) {
+                waitingQueue.push(partnerId);
+            }
         }
-    } else {
-        // Add to queue
+
+        // No one available, push this user into waiting queue
         waitingQueue.push(socket.id);
         socket.emit('waiting', { message: 'في انتظار شخص آخر...' });
-    }
+    });
 
     // Handle messages
     socket.on('message', (data) => {

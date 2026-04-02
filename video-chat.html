@@ -480,12 +480,20 @@
             chatSection.style.display = 'flex';
             updateStatus('جاري البحث عن شخص...', 'disconnected');
             addMessage('النظام: جاري البحث عن شخص للدردشة معه...', 'system');
+
+            // Notify server user is ready to join random chat
+            socket.emit('join');
         });
 
         // Socket.io Events
         socket.on('waiting', (data) => {
             updateStatus('في انتظار شخص آخر...', 'disconnected');
             addMessage('النظام: ' + data.message, 'system');
+        });
+
+        socket.on('connected', (data) => {
+            updateStatus('متصل بالخادم، اضغط ابدأ للبحث عن شريك...', 'disconnected');
+            addMessage('النظام: ' + (data.message || 'يمكنك البدء الآن.'), 'system');
         });
 
         socket.on('user-connected', (data) => {
@@ -573,12 +581,15 @@
             const message = messageInput.value.trim();
             if (message === '') return;
 
+            if (!partnerId) {
+                showNotification('لا يوجد شريك دردشة متصل، الرجاء الانتظار.');
+                return;
+            }
+
             addMessage(message, 'own');
             messageInput.value = '';
 
-            if (partnerId) {
-                socket.emit('message', { text: message });
-            }
+            socket.emit('message', { text: message });
         }
 
         function addMessage(text, sender) {

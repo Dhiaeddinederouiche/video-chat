@@ -3,11 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1877f2">
+    <meta name="description" content="شبكة اجتماعية حديثة مع مميزات متقدمة">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
     <title>شبكة اجتماعية - Social Network</title>
+
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        :root {
+            --primary-color: #1877f2;
+            --secondary-color: #42b883;
+            --success-color: #31a24c;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --background-color: #f0f2f5;
+            --card-background: #ffffff;
+            --text-color: #1c1e21;
+            --text-secondary: #65676b;
+            --border-color: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --transition: all 0.2s ease;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #18191a;
+            --card-background: #242526;
+            --text-color: #e4e6ea;
+            --text-secondary: #b0b3b8;
+            --border-color: #3e4042;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,89 +51,1009 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            direction: rtl;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Navigation Bar */
         .navbar {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 10px 20px;
+            background: var(--card-background);
+            box-shadow: var(--shadow);
+            padding: 12px 20px;
             position: sticky;
             top: 0;
             z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(10px);
         }
 
         .navbar-brand {
             font-size: 24px;
             font-weight: bold;
-            color: #1877f2;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
 
         .navbar-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
-        .navbar-actions button {
+        .nav-btn {
             padding: 8px 16px;
-            background: #1877f2;
+            background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .navbar-actions button:hover {
+        .nav-btn:hover {
             background: #165bc0;
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-btn.secondary:hover {
+            background: var(--border-color);
         }
 
         .online-badge {
-            background: #31a24c;
+            background: var(--success-color);
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Stories Bar */
+        .stories-bar {
+            background: var(--card-background);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .stories-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stories-container {
+            display: flex;
+            gap: 12px;
+            min-width: max-content;
+        }
+
+        .story-item {
+            min-width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+            padding: 3px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .story-item:hover {
+            transform: scale(1.05);
+        }
+
+        .story-item.add {
+            background: var(--border-color);
+        }
+
+        .story-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--card-background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .story-add-icon {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
 
         /* Container */
         .container {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 250px 1fr 250px;
-            gap: 20px;
-            padding: 0 10px;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 24px;
+            padding: 0 16px;
         }
 
         /* Sidebar */
         .sidebar {
-            background: white;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
             height: fit-content;
             position: sticky;
-            top: 70px;
+            top: 80px;
         }
 
         .sidebar h3 {
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: #65676b;
+            margin-bottom: 16px;
+            font-size: 16px;
+            color: var(--text-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .sidebar-item {
-            padding: 8px 12px;
+            padding: 12px 16px;
             margin: 4px 0;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .sidebar-item:hover {
+            background: var(--background-color);
+        }
+
+        .sidebar-item.active {
+            background: rgba(24, 119, 242, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Main Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Post Creator */
+        .post-creator {
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .post-creator-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 18px;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .post-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--card-background);
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .post-action-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .post-action-btn:hover {
+            background: var(--background-color);
+        }
+
+        /* Post Card */
+        .post {
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .post:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-author {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .post-author-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .post-author-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .post-menu {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .post-menu:hover {
+            background: var(--background-color);
+        }
+
+        .post-content {
+            padding: 16px 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .post-actions-bar {
+            display: flex;
+            gap: 0;
+        }
+
+        .post-action {
+            flex: 1;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .post-action:hover {
+            background: var(--background-color);
+        }
+
+        .post-action.liked {
+            color: var(--danger-color);
+        }
+
+        .post-action.liked i {
+            animation: heart-pulse 0.6s ease;
+        }
+
+        @keyframes heart-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Comments Section */
+        .comments-section {
+            padding: 16px 20px;
+            background: var(--background-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .comments-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .comment {
+            background: var(--card-background);
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .comment-content {
+            font-size: 14px;
+            line-height: 1.4;
+            color: var(--text-color);
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .comment-action {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .comment-action:hover {
+            color: var(--primary-color);
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .comment-input input {
+            flex: 1;
+            padding: 10px 16px;
+            background: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .comment-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .comment-input button {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .comment-input button:hover {
+            background: #165bc0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-background);
+            padding: 28px;
+            border-radius: var(--border-radius-lg);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--background-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-family: inherit;
+            background: var(--card-background);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #165bc0;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--background-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2d8f42;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d63c34;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .divider:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider span {
+            position: relative;
+            background: var(--card-background);
+            padding: 0 12px;
+        }
+
+        /* Messages */
+        .messages-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .messages-container.show {
+            display: flex;
+        }
+
+        .messages-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .messages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .message-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .message-item:hover {
+            background: var(--background-color);
+        }
+
+        .message-item.active {
+            background: rgba(24, 119, 242, 0.1);
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .message-preview {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .message-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-input-area input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .message-input-area button {
+            padding: 10px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Notifications */
+        .notifications-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 350px;
+            background: var(--card-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .notifications-dropdown.show {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover {
+            background: var(--background-color);
+        }
+
+        .notification-item.unread {
+            background: rgba(24, 119, 242, 0.05);
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .notification-content {
+            font-size: 14px;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--background-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .navbar-brand {
+                font-size: 20px;
+            }
+
+            .container {
+                gap: 16px;
+                padding: 0 12px;
+            }
+
+            .stories-bar {
+                margin: 12px 0;
+            }
+
+            .post-creator,
+            .post {
+                margin: 0 -8px;
+                border-radius: 0;
+            }
+
+            .messages-container {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 100px);
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .notifications-dropdown {
+                width: calc(100vw - 40px);
+                right: 10px;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-column { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .gap-8 { gap: 8px; }
+        .gap-12 { gap: 12px; }
+        .gap-16 { gap: 16px; }
+        .p-16 { padding: 16px; }
+        .p-20 { padding: 20px; }
+        .m-0 { margin: 0; }
+        .text-center { text-align: center; }
+        .text-primary { color: var(--primary-color); }
+        .text-secondary { color: var(--text-secondary); }
+        .bg-primary { background: var(--primary-color); }
+        .rounded { border-radius: var(--border-radius); }
+        .rounded-lg { border-radius: var(--border-radius-lg); }
+        .shadow { box-shadow: var(--shadow); }
+        .shadow-lg { box-shadow: var(--shadow-lg); }
+    </style>
+</head>
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
@@ -450,30 +1406,96 @@
     </style>
 </head>
 <body>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div style="font-size: 18px; color: var(--text-secondary);">جاري التحميل...</div>
+    </div>
+
     <!-- Navigation Bar -->
     <div class="navbar">
-        <div class="navbar-brand">🌐 Social Network</div>
+        <a href="#" class="navbar-brand">
+            <i class="fas fa-globe"></i>
+            Social Network
+        </a>
         <div class="navbar-actions">
+            <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="notification-badge">
+                <button class="nav-btn secondary" onclick="toggleNotifications()" title="الإشعارات">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <div id="notificationCount" class="notification-count hidden">0</div>
+            </div>
+            <button class="nav-btn secondary" onclick="toggleMessages()" title="الرسائل">
+                <i class="fas fa-envelope"></i>
+            </button>
             <div class="online-badge">
+                <i class="fas fa-circle"></i>
                 <span id="onlineCount">0</span> متصل
             </div>
-            <button onclick="showLoginModal()">تسجيل دخول</button>
+            <button class="nav-btn" onclick="showLoginModal()">تسجيل دخول</button>
         </div>
+    </div>
+
+    <!-- Notifications Dropdown -->
+    <div id="notificationsDropdown" class="notifications-dropdown">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color);">
+            <h4 style="margin: 0; font-size: 16px;">الإشعارات</h4>
+        </div>
+        <div id="notificationsList"></div>
     </div>
 
     <!-- Main Container -->
     <div class="container" id="mainContent" style="display: none;">
         <!-- Left Sidebar -->
         <div class="sidebar">
-            <h3>📱 التنقل</h3>
-            <div class="sidebar-item" onclick="showFeed()">🏠 الرئيسية</div>
-            <div class="sidebar-item" onclick="showProfile()">👤 الملف الشخصي</div>
-            <div class="sidebar-item" onclick="showFriends()">👥 الأصدقاء</div>
-            <div class="sidebar-item" onclick="logout()">🚪 تسجيل خروج</div>
+            <h3><i class="fas fa-bars"></i> القائمة</h3>
+            <div class="sidebar-item active" onclick="showFeed()">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="sidebar-item" onclick="showProfile()">
+                <i class="fas fa-user"></i>
+                <span>الملف الشخصي</span>
+            </div>
+            <div class="sidebar-item" onclick="showFriends()">
+                <i class="fas fa-users"></i>
+                <span>الأصدقاء</span>
+            </div>
+            <div class="sidebar-item" onclick="showMessages()">
+                <i class="fas fa-envelope"></i>
+                <span>الرسائل</span>
+            </div>
+            <div class="sidebar-item" onclick="showStories()">
+                <i class="fas fa-circle"></i>
+                <span>القصص</span>
+            </div>
+            <div class="sidebar-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </div>
         </div>
 
         <!-- Main Feed -->
         <div class="feed">
+            <!-- Stories Bar -->
+            <div class="stories-bar">
+                <div class="stories-container">
+                    <div class="story-item add" onclick="showCreateStoryModal()">
+                        <div class="story-avatar">
+                            <i class="fas fa-plus"></i>
+                            <div class="story-add-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="storiesContainer"></div>
+                </div>
+            </div>
+
             <!-- Post Creator -->
             <div class="post-creator">
                 <div class="post-creator-header">
@@ -481,9 +1503,18 @@
                     <input class="post-input" id="postInput" placeholder="ما الذي يفكر فيه الآن؟" onclick="showCreatePostModal()">
                 </div>
                 <div class="post-actions">
-                    <button class="post-action-btn" onclick="showCreatePostModal()">📷 صورة/فيديو</button>
-                    <button class="post-action-btn" onclick="showCreatePostModal()">😊 المشاعر/الأنشطة</button>
-                    <button class="post-action-btn" onclick="showCreatePostModal()">📍 موقع جغرافي</button>
+                    <button class="post-action-btn" onclick="showCreatePostModal()">
+                        <i class="fas fa-images"></i>
+                        صورة/فيديو
+                    </button>
+                    <button class="post-action-btn" onclick="showCreatePostModal()">
+                        <i class="fas fa-smile"></i>
+                        المشاعر
+                    </button>
+                    <button class="post-action-btn" onclick="showCreatePostModal()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        الموقع
+                    </button>
                 </div>
             </div>
 
@@ -493,11 +1524,43 @@
 
         <!-- Right Sidebar -->
         <div class="sidebar">
-            <h3>🎯 الاتجاهات</h3>
-            <div class="sidebar-item">🔥 الشائع الآن</div>
-            <div class="sidebar-item">📰 الأخبار</div>
-            <div class="sidebar-item">🎮 الألعاب</div>
-            <div class="sidebar-item">🎬 الفيديوهات</div>
+            <h3><i class="fas fa-star"></i> الاقتراحات</h3>
+            <div class="sidebar-item">
+                <i class="fas fa-fire"></i>
+                <span>الأكثر تفاعلاً</span>
+            </div>
+            <div class="sidebar-item">
+                <i class="fas fa-newspaper"></i>
+                <span>الأخبار</span>
+            </div>
+            <div class="sidebar-item">
+                <i class="fas fa-gamepad"></i>
+                <span>الألعاب</span>
+            </div>
+            <div class="sidebar-item">
+                <i class="fas fa-film"></i>
+                <span>الفيديوهات</span>
+            </div>
+
+            <h3 style="margin-top: 24px;"><i class="fas fa-users"></i> الأصدقاء</h3>
+            <div id="friendsList"></div>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="messagesContainer" class="messages-container">
+        <div class="messages-header">
+            <h4>الرسائل</h4>
+            <button onclick="closeMessages()" style="background: none; border: none; cursor: pointer; font-size: 18px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="messages-list" id="messagesList"></div>
+        <div class="message-input-area" id="messageInputArea" style="display: none;">
+            <input type="text" id="messageInput" placeholder="اكتب رسالة..." onkeypress="handleMessageKeyPress(event)">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 
@@ -505,7 +1568,7 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>مرحباً بك 👋</h2>
+                <h2 class="modal-title">مرحباً بك 👋</h2>
                 <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
             </div>
 
@@ -527,7 +1590,7 @@
                     <label>الاسم الكامل</label>
                     <input type="text" id="fullName" placeholder="اسمك الكامل" required>
                 </div>
-                <button type="submit" class="btn-primary">دخول / إنشاء حساب</button>
+                <button type="submit" class="btn btn-primary btn-full">دخول / إنشاء حساب</button>
             </form>
         </div>
     </div>
@@ -536,7 +1599,7 @@
     <div id="createPostModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>إنشاء منشور جديد</h2>
+                <h2 class="modal-title">إنشاء منشور جديد</h2>
                 <button class="modal-close" onclick="closeModal('createPostModal')">✕</button>
             </div>
             <form onsubmit="handleCreatePost(event)">
@@ -545,21 +1608,124 @@
                     <textarea id="postContent" placeholder="شارك أفكارك..." required></textarea>
                 </div>
                 <div class="form-group">
-                    <label>صورة (اختيارية)</label>
-                    <input type="url" id="postImage" placeholder="رابط الصورة">
+                    <label>الخصوصية</label>
+                    <select id="postPrivacy">
+                        <option value="public">عام</option>
+                        <option value="friends">الأصدقاء فقط</option>
+                        <option value="private">خاص</option>
+                    </select>
                 </div>
-                <button type="submit" class="btn-primary">مشاركة</button>
+                <div class="form-group">
+                    <label>صورة (اختيارية)</label>
+                    <input type="file" id="postImage" accept="image/*,video/*">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">مشاركة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Story Modal -->
+    <div id="createStoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">إنشاء قصة جديدة</h2>
+                <button class="modal-close" onclick="closeModal('createStoryModal')">✕</button>
+            </div>
+            <form onsubmit="handleCreateStory(event)">
+                <div class="form-group">
+                    <label>المحتوى</label>
+                    <textarea id="storyContent" placeholder="ماذا تريد مشاركته؟" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>النوع</label>
+                    <select id="storyType">
+                        <option value="text">نص</option>
+                        <option value="image">صورة</option>
+                        <option value="video">فيديو</option>
+                    </select>
+                </div>
+                <div class="form-group" id="storyMediaGroup" style="display: none;">
+                    <label>الوسائط</label>
+                    <input type="file" id="storyMedia" accept="image/*,video/*">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">نشر القصة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">الملف الشخصي</h2>
+                <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
+            </div>
+            <form onsubmit="handleUpdateProfile(event)">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="profileName" required>
+                </div>
+                <div class="form-group">
+                    <label>السيرة الذاتية</label>
+                    <textarea id="profileBio" placeholder="اكتب شيئاً عن نفسك..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الموقع</label>
+                    <input type="text" id="profileLocation" placeholder="مدينتك">
+                </div>
+                <div class="form-group">
+                    <label>الموقع الإلكتروني</label>
+                    <input type="url" id="profileWebsite" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الميلاد</label>
+                    <input type="date" id="profileBirthday">
+                </div>
+                <div class="form-group">
+                    <label>الجنس</label>
+                    <select id="profileGender">
+                        <option value="">غير محدد</option>
+                        <option value="male">ذكر</option>
+                        <option value="female">أنثى</option>
+                        <option value="other">أخرى</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">حفظ التغييرات</button>
             </form>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Google Sign-In Callback
+        // ===== STATE MANAGEMENT =====
+        let currentUser = null;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let currentChatUser = null;
+        let notifications = [];
+        let unreadNotifications = 0;
+
+        const socket = io();
+
+        // ===== THEME MANAGEMENT =====
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+
+            const themeIcon = document.querySelector('.theme-toggle i');
+            themeIcon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function initializeTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            const themeIcon = document.querySelector('.theme-toggle i');
+            themeIcon.className = currentTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // ===== AUTHENTICATION =====
         function handleCredentialResponse(response) {
             console.log("Google Sign-In Response:", response);
 
-            // أرسل التوكن إلى الخادم
             fetch('/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -568,7 +1734,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.error) {
-                    alert('خطأ في المصادقة: ' + data.error);
+                    showToast('خطأ في المصادقة: ' + data.error, 'error');
                 } else {
                     currentUser = {
                         userId: data.userId,
@@ -582,22 +1748,687 @@
                     closeModal('loginModal');
                     showMainApp();
                     loadFeed();
+                    loadStories();
+                    loadFriends();
                     socket.emit('user-online', currentUser);
                 }
             })
             .catch(err => {
                 console.error('Google auth error:', err);
-                alert('فشل تسجيل الدخول عبر Google');
+                showToast('فشل تسجيل الدخول عبر Google', 'error');
             });
         }
 
-        // Initialize Google Sign-In
         function initializeGoogleSignIn() {
             if (window.google && window.google.accounts) {
                 google.accounts.id.initialize({
-                    client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // استبدل بـ Client ID الخاص بك
+                    client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
                     callback: handleCredentialResponse
                 });
+
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignInButton'),
+                    {
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'signup_with',
+                        locale: 'ar'
+                    }
+                );
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('fullName').value;
+
+            fetch('/api/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    currentUser = {
+                        userId: data.userId,
+                        username: data.username,
+                        name: data.name
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    closeModal('loginModal');
+                    showMainApp();
+                    loadFeed();
+                    loadStories();
+                    loadFriends();
+
+                    socket.emit('user-online', currentUser);
+                }
+            });
+        }
+
+        // ===== UI MANAGEMENT =====
+        function showMainApp() {
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'grid';
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            if (currentUser.picture) {
+                document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" alt="${currentUser.name}">`;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            // Simple toast implementation
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? 'var(--danger-color)' : type === 'success' ? 'var(--success-color)' : 'var(--primary-color)'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideUp 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // ===== FEED MANAGEMENT =====
+        function loadFeed() {
+            fetch('/api/feed', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(res => res.json())
+            .then(posts => {
+                const container = document.getElementById('postsContainer');
+                container.innerHTML = posts.map(post => renderPost(post)).join('');
+            })
+            .catch(err => console.error('Error loading feed:', err));
+        }
+
+        function renderPost(post) {
+            const isLiked = post.is_liked === 1;
+            const timeAgo = getTimeAgo(new Date(post.created_at));
+
+            return `
+                <div class="post fade-in">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="avatar">${post.name.charAt(0)}</div>
+                            <div class="post-author-info">
+                                <div class="post-author-name">${post.name}</div>
+                                <div class="post-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                        <button class="post-menu" onclick="showPostMenu('${post.id}')">⋯</button>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    ${post.image ? `<img src="${post.image}" class="post-image" alt="Post image">` : ''}
+                    <div class="post-stats">
+                        <span><i class="fas fa-heart"></i> ${post.likes_count} إعجاب</span>
+                        <span><i class="fas fa-comment"></i> ${post.comments_count} تعليق</span>
+                    </div>
+                    <div class="post-actions-bar">
+                        <button class="post-action ${isLiked ? 'liked' : ''}" onclick="likePost('${post.id}')">
+                            <i class="fas fa-heart"></i> إعجاب
+                        </button>
+                        <button class="post-action" onclick="toggleComments('${post.id}')">
+                            <i class="fas fa-comment"></i> تعليق
+                        </button>
+                        <button class="post-action" onclick="sharePost('${post.id}')">
+                            <i class="fas fa-share"></i> مشاركة
+                        </button>
+                    </div>
+                    <div class="comments-section" id="comments-${post.id}" style="display: none;">
+                        <div class="comments-header">
+                            <span>التعليقات</span>
+                            <button class="comments-toggle" onclick="toggleComments('${post.id}')">إخفاء</button>
+                        </div>
+                        <div id="comments-list-${post.id}"></div>
+                        <div class="comment-input">
+                            <div class="avatar">${currentUser.name.charAt(0)}</div>
+                            <input type="text" placeholder="اكتب تعليقاً..." onkeypress="handleCommentKeyPress(event, '${post.id}')">
+                            <button onclick="addComment('${post.id}')">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'الآن';
+            if (minutes < 60) return `منذ ${minutes} دقيقة`;
+            if (hours < 24) return `منذ ${hours} ساعة`;
+            if (days < 7) return `منذ ${days} يوم`;
+            return date.toLocaleDateString('ar-SA');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== POST INTERACTIONS =====
+        function handleCreatePost(event) {
+            event.preventDefault();
+
+            const content = document.getElementById('postContent').value;
+            const privacy = document.getElementById('postPrivacy').value;
+            const imageFile = document.getElementById('postImage').files[0];
+
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('privacy', privacy);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('createPostModal');
+                    document.getElementById('postContent').value = '';
+                    document.getElementById('postImage').value = '';
+                    loadFeed();
+                    showToast('تم نشر المنشور بنجاح!', 'success');
+                } else {
+                    showToast('فشل في نشر المنشور', 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Error creating post:', err);
+                showToast('حدث خطأ في النشر', 'error');
+            });
+        }
+
+        function likePost(postId) {
+            fetch('/api/likes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({ postId })
+            })
+            .then(() => {
+                loadFeed();
+            })
+            .catch(err => console.error('Error liking post:', err));
+        }
+
+        function toggleComments(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            const isVisible = section.style.display !== 'none';
+
+            if (!isVisible) {
+                loadComments(postId);
+            }
+
+            section.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function loadComments(postId) {
+            fetch(`/api/posts/${postId}`)
+            .then(res => res.json())
+            .then(data => {
+                const commentsList = document.getElementById(`comments-list-${postId}`);
+                commentsList.innerHTML = data.comments.map(comment => renderComment(comment)).join('');
+            })
+            .catch(err => console.error('Error loading comments:', err));
+        }
+
+        function renderComment(comment) {
+            return `
+                <div class="comment">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <div class="comment-avatar">${comment.name.charAt(0)}</div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-color);">${comment.name}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">${getTimeAgo(new Date(comment.created_at))}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment-content">${escapeHtml(comment.content)}</div>
+                    <div class="comment-actions">
+                        <span class="comment-action" onclick="likeComment('${comment.id}')">إعجاب</span>
+                        <span class="comment-action" onclick="replyToComment('${comment.id}')">رد</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleCommentKeyPress(event, postId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                addComment(postId);
+            }
+        }
+
+        function addComment(postId) {
+            const input = event.target.previousElementSibling;
+            const content = input.value.trim();
+
+            if (!content) return;
+
+            fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({ postId, content })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadComments(postId);
+                    showToast('تم إضافة التعليق!', 'success');
+                }
+            })
+            .catch(err => console.error('Error adding comment:', err));
+        }
+
+        // ===== STORIES =====
+        function loadStories() {
+            fetch('/api/stories', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(res => res.json())
+            .then(stories => {
+                const container = document.getElementById('storiesContainer');
+                container.innerHTML = stories.map(story => renderStory(story)).join('');
+            })
+            .catch(err => console.error('Error loading stories:', err));
+        }
+
+        function renderStory(story) {
+            return `
+                <div class="story-item" onclick="viewStory('${story.id}')">
+                    <div class="story-avatar">
+                        ${story.image ? `<img src="${story.image}" alt="Story">` : story.content.charAt(0)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showCreateStoryModal() {
+            document.getElementById('createStoryModal').classList.add('show');
+        }
+
+        function handleCreateStory(event) {
+            event.preventDefault();
+
+            const content = document.getElementById('storyContent').value;
+            const type = document.getElementById('storyType').value;
+            const mediaFile = document.getElementById('storyMedia').files[0];
+
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('type', type);
+            if (mediaFile) {
+                formData.append('media', mediaFile);
+            }
+
+            fetch('/api/stories', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('createStoryModal');
+                    document.getElementById('storyContent').value = '';
+                    document.getElementById('storyMedia').value = '';
+                    loadStories();
+                    showToast('تم نشر القصة!', 'success');
+                }
+            })
+            .catch(err => console.error('Error creating story:', err));
+        }
+
+        // ===== FRIENDS =====
+        function loadFriends() {
+            fetch('/api/friends', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(res => res.json())
+            .then(friends => {
+                const container = document.getElementById('friendsList');
+                container.innerHTML = friends.slice(0, 5).map(friend => `
+                    <div class="sidebar-item" onclick="startChat('${friend.id}')">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 8px;">
+                            ${friend.name.charAt(0)}
+                        </div>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 600;">${friend.name}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                ${friend.is_online ? '<i class="fas fa-circle" style="color: var(--success-color);"></i> متصل' : 'غير متصل'}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Error loading friends:', err));
+        }
+
+        // ===== MESSAGES =====
+        function toggleMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.classList.toggle('show');
+        }
+
+        function closeMessages() {
+            document.getElementById('messagesContainer').classList.remove('show');
+        }
+
+        function startChat(userId) {
+            currentChatUser = userId;
+            loadMessages(userId);
+            document.getElementById('messageInputArea').style.display = 'flex';
+            document.getElementById('messagesContainer').classList.add('show');
+        }
+
+        function loadMessages(userId) {
+            fetch(`/api/messages/${userId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(res => res.json())
+            .then(messages => {
+                const container = document.getElementById('messagesList');
+                container.innerHTML = messages.map(message => renderMessage(message)).join('');
+                container.scrollTop = container.scrollHeight;
+            })
+            .catch(err => console.error('Error loading messages:', err));
+        }
+
+        function renderMessage(message) {
+            const isMine = message.sender_id === currentUser.userId;
+            return `
+                <div class="message-item" style="text-align: ${isMine ? 'right' : 'left'};">
+                    <div style="font-weight: 600; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">
+                        ${message.name}
+                    </div>
+                    <div style="background: ${isMine ? 'var(--primary-color)' : 'var(--background-color)'}; color: ${isMine ? 'white' : 'var(--text-color)'}; padding: 8px 12px; border-radius: 16px; display: inline-block; max-width: 70%;">
+                        ${escapeHtml(message.content)}
+                    </div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">
+                        ${new Date(message.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleMessageKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+
+            if (!content || !currentChatUser) return;
+
+            fetch('/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    receiverId: currentChatUser,
+                    content,
+                    messageType: 'text'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadMessages(currentChatUser);
+                }
+            })
+            .catch(err => console.error('Error sending message:', err));
+        }
+
+        // ===== NOTIFICATIONS =====
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function loadNotifications() {
+            fetch('/api/notifications', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                notifications = data;
+                unreadNotifications = data.filter(n => !n.is_read).length;
+
+                const countElement = document.getElementById('notificationCount');
+                if (unreadNotifications > 0) {
+                    countElement.textContent = unreadNotifications;
+                    countElement.classList.remove('hidden');
+                } else {
+                    countElement.classList.add('hidden');
+                }
+
+                const container = document.getElementById('notificationsList');
+                container.innerHTML = data.map(notification => renderNotification(notification)).join('');
+            })
+            .catch(err => console.error('Error loading notifications:', err));
+        }
+
+        function renderNotification(notification) {
+            return `
+                <div class="notification-item ${notification.is_read ? '' : 'unread'}" onclick="markNotificationRead('${notification.id}')">
+                    <div class="notification-content">
+                        ${notification.title}
+                        ${notification.content ? `<br><small>${notification.content}</small>` : ''}
+                    </div>
+                    <div class="notification-time">${getTimeAgo(new Date(notification.created_at))}</div>
+                </div>
+            `;
+        }
+
+        function markNotificationRead(notificationId) {
+            fetch(`/api/notifications/${notificationId}/read`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                }
+            })
+            .then(() => {
+                loadNotifications();
+            })
+            .catch(err => console.error('Error marking notification read:', err));
+        }
+
+        // ===== MODALS =====
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function showCreatePostModal() {
+            document.getElementById('createPostModal').classList.add('show');
+        }
+
+        function showProfile() {
+            // Load current user profile
+            fetch(`/api/user/${currentUser.userId}`)
+            .then(res => res.json())
+            .then(user => {
+                document.getElementById('profileName').value = user.name;
+                document.getElementById('profileBio').value = user.bio || '';
+                document.getElementById('profileLocation').value = user.location || '';
+                document.getElementById('profileWebsite').value = user.website || '';
+                document.getElementById('profileBirthday').value = user.birthday || '';
+                document.getElementById('profileGender').value = user.gender || '';
+                document.getElementById('profileModal').classList.add('show');
+            })
+            .catch(err => console.error('Error loading profile:', err));
+        }
+
+        function handleUpdateProfile(event) {
+            event.preventDefault();
+
+            const data = {
+                bio: document.getElementById('profileBio').value,
+                location: document.getElementById('profileLocation').value,
+                website: document.getElementById('profileWebsite').value,
+                birthday: document.getElementById('profileBirthday').value,
+                gender: document.getElementById('profileGender').value
+            };
+
+            fetch(`/api/user/${currentUser.userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('profileModal');
+                    showToast('تم تحديث الملف الشخصي!', 'success');
+                }
+            })
+            .catch(err => console.error('Error updating profile:', err));
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            currentUser = null;
+            location.reload();
+        }
+
+        // ===== SOCKET.IO EVENTS =====
+        socket.on('users-online-count', (count) => {
+            document.getElementById('onlineCount').textContent = count;
+        });
+
+        socket.on('new-post', () => {
+            loadFeed();
+        });
+
+        socket.on('new-comment', () => {
+            loadFeed();
+        });
+
+        socket.on('new-like', () => {
+            loadFeed();
+        });
+
+        socket.on('new-story', () => {
+            loadStories();
+        });
+
+        socket.on('notification', (data) => {
+            showToast(data.title, 'info');
+            loadNotifications();
+        });
+
+        socket.on('private-message', (data) => {
+            if (data.from === currentChatUser || data.to === currentUser.userId) {
+                loadMessages(currentChatUser || data.from);
+            }
+            showToast(`رسالة جديدة من ${data.fromName}`, 'info');
+        });
+
+        // ===== INITIALIZATION =====
+        function initializeApp() {
+            initializeTheme();
+
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+                loadFeed();
+                loadStories();
+                loadFriends();
+                loadNotifications();
+            } else {
+                initializeGoogleSignIn();
+                document.getElementById('loginModal').classList.add('show');
+            }
+        }
+
+        // Story type change handler
+        document.getElementById('storyType').addEventListener('change', function() {
+            const mediaGroup = document.getElementById('storyMediaGroup');
+            mediaGroup.style.display = this.value !== 'text' ? 'block' : 'none';
+        });
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const messagesContainer = document.getElementById('messagesContainer');
+
+            if (!event.target.closest('.notification-badge') && !event.target.closest('#notificationsDropdown')) {
+                notificationsDropdown.classList.remove('show');
+            }
+
+            if (!event.target.closest('.nav-btn') && !event.target.closest('#messagesContainer')) {
+                messagesContainer.classList.remove('show');
+            }
+        });
+    </script>
 
                 google.accounts.id.renderButton(
                     document.getElementById('googleSignInButton'),

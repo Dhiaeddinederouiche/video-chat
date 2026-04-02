@@ -61,9 +61,10 @@ io.on('connection', (socket) => {
             
             console.log(`Matched: ${socket.id} <-> ${partnerId}`);
             
-            // Notify both users
-            socket.emit('user-connected', { partnerId });
-            io.to(partnerId).emit('user-connected', { partnerId: socket.id });
+            // Notify both users with role assignment to avoid glare offer/answer collisions
+            // New socket acts as initiator (caller), existing waiting partner as callee.
+            socket.emit('user-connected', { partnerId, initiator: true });
+            io.to(partnerId).emit('user-connected', { partnerId: socket.id, initiator: false });
         }
     } else {
         // Add to queue

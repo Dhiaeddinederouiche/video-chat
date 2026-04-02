@@ -938,7 +938,7 @@
         });
 
         socket.on('user-connected', async (data) => {
-            console.log('User connected:', data.partnerId);
+            console.log('User connected:', data.partnerId, 'initiator:', data.initiator);
             partnerId = data.partnerId;
             isConnected = true;
             noUserMessage.style.display = 'none';
@@ -960,11 +960,13 @@
             
             // Create peer connection
             await createPeerConnection();
-            
-            // Only the user who was waiting creates the offer
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            socket.emit('offer', { to: partnerId, offer });
+
+            // Initiator starts the offer; callee waits for incoming offer
+            if (data.initiator) {
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                socket.emit('offer', { to: partnerId, offer });
+            }
         });
 
         socket.on('offer', async (data) => {

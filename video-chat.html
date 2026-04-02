@@ -704,7 +704,9 @@
                 <button class="btn-toggle" id="micToggle" disabled>إيقاف الصوت</button>
                 <button class="btn-toggle" id="recordBtn" disabled style="background: #9C27B0;">🔴 Record</button>
                 <button class="btn-toggle" id="screenshotBtn" disabled style="background: #FF5722;">📸 Screenshot</button>
+                <button class="btn-toggle" id="screenShareBtn" disabled style="background: #009688;">📺 مشاركة الشاشة</button>
                 <button class="btn-toggle" id="emojiBtn" disabled style="background: #FFC107; color: #000;">😊 Emoji</button>
+                <button class="btn-toggle" id="shareBtn" style="background: #00bcd4; color: white;" title="نسخ رابط المساعدة">🔗 مشاركة</button>
                 <button class="settings-btn" id="settingsBtn">⚙️</button>
             </div>
         </div>
@@ -818,6 +820,8 @@
         const recordingIndicator = document.getElementById('recordingIndicator');
         const chatToggle = document.getElementById('chatToggle');
         const chatSection = document.querySelector('.chat-section');
+        const shareBtn = document.getElementById('shareBtn');
+        const screenShareBtn = document.getElementById('screenShareBtn');
 
         // Socket.io connection
         const socket = io();
@@ -852,6 +856,9 @@
         let isCameraOn = true;
         let isMicOn = true;
         let isConnected = false;
+        let isScreenSharing = false;
+        let screenStream = null;
+        let cameraStream = null;
         let dataChannel = null;
         let partnerId = null;
         let mediaRecorder = null;
@@ -860,7 +867,6 @@
         let callStartTime = null;
         let timerInterval = null;
         let messageCount = 0;
-        let videoQuality = '720';
         let soundEnabled = true;
         let vibrationEnabled = true;
 
@@ -882,17 +888,26 @@
         // Start Camera
         startBtn.addEventListener('click', async () => {
             try {
+                if (socket.disconnected) {
+                    socket.connect();
+                }
+
                 localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
+                cameraStream = localStream;
                 localVideo.srcObject = localStream;
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 skipBtn.disabled = false;
                 cameraToggle.disabled = false;
                 micToggle.disabled = false;
+                recordBtn.disabled = false;
+                screenshotBtn.disabled = false;
+                screenShareBtn.disabled = false;
+                emojiBtn.disabled = false;
                 messageInput.disabled = false;
                 sendBtn.disabled = false;
                 updateStatus('جاهز - In Ready Mode', 'disconnected');
-                addMessage('System: Your camera is ready! Waiting to connect...', 'system');
+                addMessage('النظام: الكاميرا جاهزة! جاري البحث عن شخص...', 'system');
             } catch (error) {
                 let errorMessage = 'خطأ في الوصول إلى الكاميرا: ';
                 if (error.name === 'NotAllowedError') {
@@ -925,6 +940,7 @@
             startCallTimer();
             recordBtn.disabled = false;
             screenshotBtn.disabled = false;
+            screenShareBtn.disabled = false;
             emojiBtn.disabled = false;
             playSound('record');
             showNotification('👋 You are connected!');
@@ -977,13 +993,14 @@
 
         socket.on('user-disconnected', (data) => {
             console.log('User disconnected:', data.message);
-            disconnectUser();
+            resetForNextUser();
+            updateStatus('انقطع الاتصال. جاري البحث عن شريك جديد...', 'disconnected');
+            addMessage('النظام: ' + (data.message || 'الشريك انقطع.'), 'system');
         });
 
         // Stop Camera
         stopBtn.addEventListener('click', () => {
             disconnectUser();
-            socket.disconnect();
             updateStatus('متوقف - Stopped', 'disconnected');
         });
 
@@ -1012,10 +1029,10 @@
         // Skip User
         skipBtn.addEventListener('click', () => {
             socket.emit('skip');
-            disconnectUser();
+            resetForNextUser();
             chatMessages.innerHTML = '';
             updateStatus('في البحث عن شخص جديد...', 'disconnected');
-            addMessage('System: Skipped! Looking for another person...', 'system');
+            addMessage('النظام: تم التخطي. جاري البحث...', 'system');
         });
 
         // Recording
@@ -1101,6 +1118,72 @@
             });
         }
 
+        // Screen Share
+        screenShareBtn.addEventListener('click', async () => {
+            if (isScreenSharing) {
+                stopScreenShare();
+            } else {
+                await startScreenShare();
+            }
+        });
+
+        async function startScreenShare() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                alert('متصفحك لا يدعم مشاركة الشاشة.');
+                return;
+            }
+
+            try {
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                if (!cameraStream && localStream) {
+                    cameraStream = localStream;
+                }
+
+                localVideo.srcObject = screenStream;
+                isScreenSharing = true;
+                screenShareBtn.textContent = '🛑 إيقاف مشاركة الشاشة';
+
+                if (peerConnection) {
+                    const videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                    const shareTrack = screenStream.getVideoTracks()[0];
+                    if (videoSender && shareTrack) {
+                        await videoSender.replaceTrack(shareTrack);
+                    }
+                }
+
+                showNotification('مشاركة الشاشة نشطة الآن');
+
+                const track = screenStream.getVideoTracks()[0];
+                track.onended = () => stopScreenShare();
+            } catch (error) {
+                console.error('Screen share error:', error);
+                alert('خطأ في تشغيل مشاركة الشاشة: ' + (error.message || error));
+            }
+        }
+
+        function stopScreenShare() {
+            if (!isScreenSharing) return;
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
+            }
+
+            if (cameraStream) {
+                localVideo.srcObject = cameraStream;
+                if (peerConnection) {
+                    const videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+                    const cameraTrack = cameraStream.getVideoTracks()[0];
+                    if (videoSender && cameraTrack) {
+                        videoSender.replaceTrack(cameraTrack);
+                    }
+                }
+            }
+
+            isScreenSharing = false;
+            screenShareBtn.textContent = '📺 مشاركة الشاشة';
+            showNotification('تم إيقاف مشاركة الشاشة');
+        }
+
         // Emoji Picker
         emojiBtn.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -1127,6 +1210,17 @@
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 emojiPicker.classList.remove('show');
+            }
+        });
+
+        // Share link button
+        shareBtn.addEventListener('click', async () => {
+            const url = window.location.href;
+            try {
+                await navigator.clipboard.writeText(url);
+                showNotification('تم نسخ الرابط إلى الحافظة!');
+            } catch (err) {
+                alert('تعذر نسخ الرابط. الرجاء نسخه يدوياً: ' + url);
             }
         });
 
@@ -1376,7 +1470,25 @@
         }
 
         // Disconnect User
+        function resetForNextUser() {
+            if (isScreenSharing) {
+                stopScreenShare();
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            remoteVideo.srcObject = null;
+            partnerId = null;
+            isConnected = false;
+            noUserMessage.style.display = 'flex';
+            stopCallTimer();
+        }
+
         function disconnectUser() {
+            if (isScreenSharing) {
+                stopScreenShare();
+            }
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;

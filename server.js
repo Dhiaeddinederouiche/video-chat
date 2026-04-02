@@ -142,6 +142,7 @@ io.on('connection', (socket) => {
                     io.to(partnerId).emit('user-disconnected', { 
                         message: 'انقطع الاتصال بالشخص الآخر' 
                     });
+                    io.to(partnerId).emit('waiting', { message: 'الشخص الآخر انقطع. جاري البحث عن شخص جديد...' });
                     waitingQueue.push(partnerId);
                 }
             } else {

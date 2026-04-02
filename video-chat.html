@@ -895,6 +895,13 @@
                 localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
                 cameraStream = localStream;
                 localVideo.srcObject = localStream;
+                // Try to play the local video immediately
+                localVideo.autoplay = true;
+                localVideo.muted = true;
+                await localVideo.play().catch(() => {
+                    console.warn('Local video autoplay blocked, user interaction required.');
+                });
+
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 skipBtn.disabled = false;
@@ -1445,6 +1452,11 @@
                 console.log('Received remote track:', event.track.kind);
                 if (remoteVideo.srcObject !== event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
+                    remoteVideo.autoplay = true;
+                    remoteVideo.muted = false;
+                    remoteVideo.play().catch(() => {
+                        console.warn('Remote video autoplay blocked, user interaction required.');
+                    });
                     noUserMessage.style.display = 'none';
                 }
             };
@@ -1492,6 +1504,14 @@
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
+            }
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            if (screenStream) {
+                screenStream.getTracks().forEach(track => track.stop());
+                screenStream = null;
             }
             if (peerConnection) {
                 peerConnection.close();

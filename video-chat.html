@@ -1021,6 +1021,7 @@
                 videoTrack.enabled = isCameraOn;
                 cameraToggle.textContent = isCameraOn ? 'إيقاف الكاميرا' : 'تشغيل الكاميرا';
                 cameraToggle.style.background = isCameraOn ? '#2196F3' : '#f44336';
+                updatePeerConnectionTracks();
             }
         });
 
@@ -1032,6 +1033,7 @@
                 audioTrack.enabled = isMicOn;
                 micToggle.textContent = isMicOn ? 'إيقاف الصوت' : 'تشغيل الصوت';
                 micToggle.style.background = isMicOn ? '#2196F3' : '#f44336';
+                updatePeerConnectionTracks();
             }
         });
 
@@ -1481,6 +1483,32 @@
             peerConnection.oniceconnectionstatechange = () => {
                 console.log('ICE connection state:', peerConnection.iceConnectionState);
             };
+
+            // Keep sending audio/video updates in sync.
+            updatePeerConnectionTracks();
+        }
+
+        function updatePeerConnectionTracks() {
+            if (!peerConnection || !localStream) return;
+
+            const senders = peerConnection.getSenders();
+
+            localStream.getTracks().forEach(track => {
+                const sender = senders.find(s => s.track && s.track.kind === track.kind);
+                if (sender && sender.replaceTrack) {
+                    sender.replaceTrack(track);
+                } else {
+                    peerConnection.addTrack(track, localStream);
+                }
+            });
+        }
+
+        function setPeerVideoTrack(track) {
+            if (!peerConnection || !track) return;
+            const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (sender && sender.replaceTrack) {
+                sender.replaceTrack(track);
+            }
         }
 
         // Disconnect User

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <title>شبكة اجتماعية - Social Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .navbar-actions button {
+            padding: 8px 16px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .navbar-actions button:hover {
+            background: #165bc0;
+        }
+
+        .online-badge {
+            background: #31a24c;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 20px;
+            padding: 0 10px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 70px;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #65676b;
+        }
+
+        .sidebar-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #f0f2f5;
+        }
+
+        /* Main Feed */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Post Creator */
+        .post-creator {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .post-creator-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1877f2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .post-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #65676b;
+        }
+
+        .post-input:focus {
+            outline: none;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .post-action-btn {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #65676b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .post-action-btn:hover {
+            background: #f0f2f5;
+        }
+
+        /* Post Card */
+        .post {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .post-author {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .post-author-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .post-time {
+            font-size: 13px;
+            color: #65676b;
+        }
+
+        .post-content {
+            padding: 12px 16px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #65676b;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .post-actions-bar {
+            display: flex;
+            gap: 0;
+        }
+
+        .post-action {
+            flex: 1;
+            padding: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #65676b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .post-action:hover {
+            background: #f0f2f5;
+        }
+
+        .post-action.liked {
+            color: #e4405f;
+        }
+
+        /* Comments Section */
+        .comments-section {
+            padding: 12px 16px;
+            background: #f9f9f9;
+        }
+
+        .comment {
+            background: white;
+            padding: 8px 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #050505;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .comment-input input {
+            flex: 1;
+            padding: 8px 12px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .comment-input button {
+            padding: 8px 16px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 40px rgba(0,0,0,0.16);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #65676b;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #165bc0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                gap: 12px;
+                padding: 0 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="navbar-brand">🌐 Social Network</div>
+        <div class="navbar-actions">
+            <div class="online-badge">
+                <span id="onlineCount">0</span> متصل
+            </div>
+            <button onclick="showLoginModal()">تسجيل دخول</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContent" style="display: none;">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h3>📱 التنقل</h3>
+            <div class="sidebar-item" onclick="showFeed()">🏠 الرئيسية</div>
+            <div class="sidebar-item" onclick="showProfile()">👤 الملف الشخصي</div>
+            <div class="sidebar-item" onclick="showFriends()">👥 الأصدقاء</div>
+            <div class="sidebar-item" onclick="logout()">🚪 تسجيل خروج</div>
+        </div>
+
+        <!-- Main Feed -->
+        <div class="feed">
+            <!-- Post Creator -->
+            <div class="post-creator">
+                <div class="post-creator-header">
+                    <div class="avatar" id="userAvatar">أ</div>
+                    <input class="post-input" id="postInput" placeholder="ما الذي يفكر فيه الآن؟" onclick="showCreatePostModal()">
+                </div>
+                <div class="post-actions">
+                    <button class="post-action-btn" onclick="showCreatePostModal()">📷 صورة/فيديو</button>
+                    <button class="post-action-btn" onclick="showCreatePostModal()">😊 المشاعر/الأنشطة</button>
+                    <button class="post-action-btn" onclick="showCreatePostModal()">📍 موقع جغرافي</button>
+                </div>
+            </div>
+
+            <!-- Feed Posts -->
+            <div id="postsContainer"></div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar">
+            <h3>🎯 الاتجاهات</h3>
+            <div class="sidebar-item">🔥 الشائع الآن</div>
+            <div class="sidebar-item">📰 الأخبار</div>
+            <div class="sidebar-item">🎮 الألعاب</div>
+            <div class="sidebar-item">🎬 الفيديوهات</div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>مرحباً بك 👋</h2>
+                <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="username" placeholder="اختر اسم مستخدم" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="fullName" placeholder="اسمك الكامل" required>
+                </div>
+                <button type="submit" class="btn-primary">دخول / إنشاء حساب</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div id="createPostModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إنشاء منشور جديد</h2>
+                <button class="modal-close" onclick="closeModal('createPostModal')">✕</button>
+            </div>
+            <form onsubmit="handleCreatePost(event)">
+                <div class="form-group">
+                    <label>ما الذي تريد مشاركته؟</label>
+                    <textarea id="postContent" placeholder="شارك أفكارك..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>صورة (اختيارية)</label>
+                    <input type="url" id="postImage" placeholder="رابط الصورة">
+                </div>
+                <button type="submit" class="btn-primary">مشاركة</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // State
+        let currentUser = null;
+        const socket = io();
+
+        // Check if user is logged in
+        function initializeApp() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+                loadFeed();
+            } else {
+                document.getElementById('loginModal').classList.add('show');
+            }
+        }
+
+        // Handle Login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('fullName').value;
+
+            fetch('/api/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, name })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    currentUser = {
+                        userId: data.userId,
+                        username: data.username,
+                        name: data.name
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    closeModal('loginModal');
+                    showMainApp();
+                    loadFeed();
+                    
+                    // Notify server user is online
+                    socket.emit('user-online', currentUser);
+                }
+            });
+        }
+
+        // Show Main App
+        function showMainApp() {
+            document.getElementById('mainContent').style.display = 'grid';
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+        }
+
+        // Load Feed
+        function loadFeed() {
+            fetch('/api/feed')
+                .then(res => res.json())
+                .then(posts => {
+                    const container = document.getElementById('postsContainer');
+                    container.innerHTML = posts.map(post => renderPost(post)).join('');
+                });
+        }
+
+        // Render Post
+        function renderPost(post) {
+            return `
+                <div class="post">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="avatar">${post.name.charAt(0)}</div>
+                            <div>
+                                <div class="post-author-name">${post.name}</div>
+                                <div class="post-time">${new Date(post.created_at).toLocaleDateString('ar-SA')}</div>
+                            </div>
+                        </div>
+                        <button style="background: none; border: none; cursor: pointer; font-size: 20px;">⋯</button>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.image ? `<img src="${post.image}" class="post-image">` : ''}
+                    <div class="post-stats">
+                        <span>❤️ ${post.likes_count} إعجاب</span>
+                        <span>💬 ${post.comments_count} تعليق</span>
+                    </div>
+                    <div class="post-actions-bar">
+                        <button class="post-action" onclick="likePost('${post.id}')">👍 إعجاب</button>
+                        <button class="post-action" onclick="showComments('${post.id}')">💬 تعليق</button>
+                        <button class="post-action">↗️ مشاركة</button>
+                    </div>
+                    <div class="comments-section" id="comments-${post.id}" style="display: none;"></div>
+                </div>
+            `;
+        }
+
+        // Handle Create Post
+        function handleCreatePost(event) {
+            event.preventDefault();
+
+            const content = document.getElementById('postContent').value;
+            const image = document.getElementById('postImage').value;
+
+            fetch('/api/posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: currentUser.userId,
+                    content,
+                    image: image || null
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('createPostModal');
+                    document.getElementById('postContent').value = '';
+                    document.getElementById('postImage').value = '';
+                    loadFeed();
+                }
+            });
+        }
+
+        // Like Post
+        function likePost(postId) {
+            fetch('/api/likes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: currentUser.userId,
+                    postId
+                })
+            })
+            .then(() => loadFeed());
+        }
+
+        // Show Comments
+        function showComments(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Modals
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function showCreatePostModal() {
+            document.getElementById('createPostModal').classList.add('show');
+        }
+
+        function showFeed() {
+            loadFeed();
+        }
+
+        function showProfile() {
+            alert(`الملف الشخصي: ${currentUser.name}`);
+        }
+
+        function showFriends() {
+            alert('الأصدقاء قريباً...');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            location.reload();
+        }
+
+        // Socket.io Events
+        socket.on('users-online-count', (count) => {
+            document.getElementById('onlineCount').textContent = count;
+        });
+
+        socket.on('new-post', (post) => {
+            loadFeed();
+        });
+
+        socket.on('new-comment', () => {
+            loadFeed();
+        });
+
+        // Initialize
+        initializeApp();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>

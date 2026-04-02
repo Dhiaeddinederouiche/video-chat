@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
-    <title>دردشة كاميرا - Chat Video</title>
+    <title>دردشة نصية عشوائية - Random Text Chat</title>
     <style>
         * {
             margin: 0;
@@ -24,84 +24,42 @@
 
         .container {
             width: 90%;
-            max-width: 1200px;
+            max-width: 800px;
             height: 90vh;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             display: flex;
-            overflow: hidden;
-        }
-
-        .video-section {
-            flex: 1;
-            display: flex;
             flex-direction: column;
-            background: #000;
-            position: relative;
-        }
-
-        .video-container {
-            flex: 1;
-            display: flex;
-            gap: 10px;
-            padding: 10px;
             overflow: hidden;
         }
 
-        .video-box {
-            flex: 1;
-            background: #222;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: black;
-        }
-
-        .video-label {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
+        .start-section {
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            z-index: 10;
+            border-radius: 20px 20px 0 0;
         }
 
-        .controls {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-height: 120px;
-            overflow-y: auto;
+        .start-section h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
         }
 
-        button {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
+        .start-section p {
+            margin-bottom: 30px;
+            opacity: 0.9;
         }
 
         .btn-start {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
             background: #4CAF50;
             color: white;
         }
@@ -111,42 +69,12 @@
             transform: scale(1.05);
         }
 
-        .btn-stop {
-            background: #f44336;
-            color: white;
-        }
-
-        .btn-stop:hover {
-            background: #da190b;
-            transform: scale(1.05);
-        }
-
-        .btn-skip {
-            background: #ff9800;
-            color: white;
-        }
-
-        .btn-skip:hover {
-            background: #e68900;
-            transform: scale(1.05);
-        }
-
-        .btn-toggle {
-            background: #2196F3;
-            color: white;
-        }
-
-        .btn-toggle:hover {
-            background: #0b7dda;
-            transform: scale(1.05);
-        }
-
         .chat-section {
-            width: 320px;
+            flex: 1;
             background: #f5f5f5;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #ddd;
+            display: none;
         }
 
         .chat-header {
@@ -154,7 +82,7 @@
             color: white;
             padding: 20px;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
@@ -286,12 +214,6 @@
             50% { opacity: 0.4; }
         }
 
-        .no-user {
-            color: #999;
-            text-align: center;
-            padding: 20px;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -347,113 +269,8 @@
             margin: 10px 0;
         }
 
-        .setting-group input[type="checkbox"],
-        .setting-group input[type="range"] {
+        .setting-group input[type="checkbox"] {
             cursor: pointer;
-        }
-
-        .recording-indicator {
-            display: none;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f44336;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            animation: blink 1s infinite;
-            z-index: 20;
-        }
-
-        .recording-indicator.active {
-            display: block;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
-        }
-
-        .timer {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            z-index: 20;
-        }
-
-        .emoji-picker {
-            display: none;
-            position: absolute;
-            bottom: 70px;
-            right: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 10px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            max-width: 200px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 20;
-        }
-
-        @media (max-width: 480px) {
-            .emoji-picker {
-                position: static;
-                width: 100%;
-                max-width: 100%;
-                border: 1px solid #ddd;
-                margin: 8px 0;
-                grid-template-columns: repeat(6, minmax(30px, 1fr));
-                bottom: auto;
-                right: auto;
-            }
-        }
-
-        .emoji-picker.show {
-            display: grid;
-        }
-
-        .emoji-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        .emoji-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .quality-selector {
-            display: flex;
-            gap: 8px;
-            margin: 10px 0;
-        }
-
-        .quality-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .quality-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
         }
 
         .notification {
@@ -496,32 +313,6 @@
             right: -10px;
         }
 
-        .chat-toggle {
-            display: none;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            z-index: 10;
-        }
-
-        .chat-section.collapsed {
-            height: 50px;
-            overflow: hidden;
-        }
-
-        .chat-section.collapsed .chat-messages,
-        .chat-section.collapsed .chat-input-area,
-        .chat-section.collapsed .emoji-picker {
-            display: none;
-        }
-
         body.dark-mode {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
         }
@@ -555,41 +346,11 @@
 
         @media (max-width: 768px) {
             .container {
-                flex-direction: column;
                 height: 100vh;
             }
 
-            .chat-section {
-                width: 100%;
-                height: 250px;
-                order: 2;
-            }
-
-            .video-section {
-                flex: 1;
-                order: 1;
-            }
-
-            .controls {
-                padding: 10px;
-                gap: 8px;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-
-            .controls button {
-                padding: 8px 12px;
-                font-size: 11px;
-                min-width: 80px;
-            }
-
-            .emoji-picker {
-                max-width: 150px;
-                bottom: 60px;
-            }
-
             .chat-messages {
-                max-height: 150px;
+                max-height: 400px;
                 overflow-y: auto;
             }
 
@@ -606,63 +367,10 @@
                 padding: 8px 16px;
                 font-size: 12px;
             }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                height: 100vh;
-            }
-
-            .video-container {
-                flex-direction: column;
-                gap: 5px;
-                padding: 5px;
-            }
-
-            .video-box {
-                height: 35vh;
-                min-height: 200px;
-            }
-
-            .chat-section {
-                height: 200px;
-            }
-
-            .controls {
-                padding: 8px;
-                gap: 6px;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-                max-height: none;
-                overflow: visible;
-            }
-
-            .controls button {
-                padding: 6px 10px;
-                font-size: 10px;
-                min-width: auto;
-                width: 100%;
-            }
-
-            .chat-messages {
-                max-height: 120px;
-                font-size: 13px;
-                padding: 10px;
-            }
-
-            .chat-input-area input {
-                font-size: 13px;
-                padding: 6px 10px;
-            }
-
-            .chat-input-area button {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
 
             .chat-header {
                 padding: 15px;
-                font-size: 14px;
+                font-size: 16px;
             }
 
             .stats {
@@ -673,51 +381,23 @@
                 width: 95%;
                 max-height: 90vh;
             }
-
-            .chat-toggle {
-                display: block;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="video-section">
-            <div class="video-container">
-                <div class="video-box">
-                    <video id="localVideo" muted playsinline></video>
-                    <span class="video-label">أنت (You)</span>
-                    <div class="recording-indicator" id="recordingIndicator">🔴 Recording</div>
-                    <div class="timer" id="callTimer">00:00</div>
-                </div>
-                <div class="video-box">
-                    <video id="remoteVideo" playsinline></video>
-                    <span class="video-label">الشخص الآخر (Other)</span>
-                    <div class="no-user" id="noUserMessage">في انتظار شخص...</div>
-                </div>
-            </div>
-            <div class="controls">
-                <button class="btn-start" id="startBtn">ابدأ الكاميرا</button>
-                <button class="btn-stop" id="stopBtn" disabled>إيقاف البث</button>
-                <button class="btn-skip" id="skipBtn" disabled>تخطي</button>
-                <button class="btn-toggle" id="cameraToggle" disabled>إيقاف الكاميرا</button>
-                <button class="btn-toggle" id="micToggle" disabled>إيقاف الصوت</button>
-                <button class="btn-toggle" id="recordBtn" disabled style="background: #9C27B0;">🔴 Record</button>
-                <button class="btn-toggle" id="screenshotBtn" disabled style="background: #FF5722;">📸 Screenshot</button>
-                <button class="btn-toggle" id="screenShareBtn" disabled style="background: #009688;">📺 مشاركة الشاشة</button>
-                <button class="btn-toggle" id="emojiBtn" disabled style="background: #FFC107; color: #000;">😊 Emoji</button>
-                <button class="btn-toggle" id="shareBtn" style="background: #00bcd4; color: white;" title="نسخ رابط المساعدة">🔗 مشاركة</button>
-                <button class="settings-btn" id="settingsBtn">⚙️</button>
-            </div>
+        <div class="start-section" id="startSection">
+            <h1>دردشة نصية عشوائية</h1>
+            <p>تواصل مع أشخاص من جميع أنحاء العالم بشكل مجهول</p>
+            <button class="btn-start" id="startBtn">ابدأ الدردشة</button>
         </div>
 
-        <div class="chat-section">
-            <button class="chat-toggle" id="chatToggle">💬</button>
+        <div class="chat-section" id="chatSection">
             <div class="chat-header">
                 <div class="header-info">
                     <div>💬 الرسائل (Messages)</div>
                     <div class="stats">
-                        <span id="onlineCount">0</span> متصل | 
+                        <span id="onlineCount">0</span> متصل |
                         <span id="messageCountBadge">0</span> رسائل
                     </div>
                 </div>
@@ -728,21 +408,11 @@
                 <span class="loading"></span>
             </div>
             <div class="chat-messages" id="chatMessages"></div>
-            <div class="emoji-picker" id="emojiPicker">
-                <button class="emoji-btn">😊</button>
-                <button class="emoji-btn">❤️</button>
-                <button class="emoji-btn">👍</button>
-                <button class="emoji-btn">🔥</button>
-                <button class="emoji-btn">😂</button>
-                <button class="emoji-btn">🎉</button>
-                <button class="emoji-btn">✨</button>
-                <button class="emoji-btn">👋</button>
-            </div>
             <div class="chat-input-area">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="اكتب رسالة..." 
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="اكتب رسالة..."
                     disabled
                 >
                 <button id="sendBtn" disabled>إرسال</button>
@@ -754,15 +424,6 @@
             <div class="modal-content">
                 <span class="close-modal" id="closeSettings">&times;</span>
                 <h2>⚙️ الإعدادات</h2>
-                
-                <div class="setting-group">
-                    <h3>جودة الفيديو</h3>
-                    <div class="quality-selector">
-                        <button class="quality-btn active" data-quality="720">720p</button>
-                        <button class="quality-btn" data-quality="480">480p</button>
-                        <button class="quality-btn" data-quality="360">360p</button>
-                    </div>
-                </div>
 
                 <div class="setting-group">
                     <label>
@@ -780,11 +441,6 @@
                 </div>
 
                 <div class="setting-group">
-                    <h3>مستوى الصوت</h3>
-                    <input type="range" id="volumeControl" min="0" max="100" value="100">
-                </div>
-
-                <div class="setting-group">
                     <button style="width: 100%; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">
                         مسح السجل التاريخي
                     </button>
@@ -796,139 +452,34 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // DOM Elements
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
+        const startSection = document.getElementById('startSection');
+        const chatSection = document.getElementById('chatSection');
         const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const skipBtn = document.getElementById('skipBtn');
-        const cameraToggle = document.getElementById('cameraToggle');
-        const micToggle = document.getElementById('micToggle');
-        const recordBtn = document.getElementById('recordBtn');
-        const screenshotBtn = document.getElementById('screenshotBtn');
-        const emojiBtn = document.getElementById('emojiBtn');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatMessages = document.getElementById('chatMessages');
         const status = document.getElementById('status');
-        const noUserMessage = document.getElementById('noUserMessage');
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsModal = document.getElementById('settingsModal');
         const closeSettings = document.getElementById('closeSettings');
         const darkModeBtn = document.getElementById('darkModeBtn');
-        const emojiPicker = document.getElementById('emojiPicker');
-        const callTimer = document.getElementById('callTimer');
-        const recordingIndicator = document.getElementById('recordingIndicator');
-        const chatToggle = document.getElementById('chatToggle');
-        const chatSection = document.querySelector('.chat-section');
-        const shareBtn = document.getElementById('shareBtn');
-        const screenShareBtn = document.getElementById('screenShareBtn');
 
         // Socket.io connection
         const socket = io();
 
-        // Check for HTTPS requirement
-        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-            alert('الكاميرا تتطلب اتصال آمن (HTTPS). يرجى استخدام HTTPS أو localhost.');
-            startBtn.disabled = true;
-        }
-
         // State
-        let localStream = null;
-        let peerConnection = null;
-        let videoQuality = '720';
-
-        function getVideoConstraints() {
-            let width = 1280, height = 720;
-            if (videoQuality === '480') {
-                width = 854; height = 480;
-            } else if (videoQuality === '360') {
-                width = 640; height = 360;
-            }
-            return {
-                video: {
-                    width: { ideal: width },
-                    height: { ideal: height },
-                    facingMode: 'user'
-                },
-                audio: true
-            };
-        }
-        let isCameraOn = true;
-        let isMicOn = true;
-        let isConnected = false;
-        let isScreenSharing = false;
-        let screenStream = null;
-        let cameraStream = null;
-        let dataChannel = null;
         let partnerId = null;
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        let isRecording = false;
-        let callStartTime = null;
-        let timerInterval = null;
+        let isConnected = false;
         let messageCount = 0;
         let soundEnabled = true;
         let vibrationEnabled = true;
 
-        // Configuration
-        const peerConfig = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
-            ]
-        };
-
-        // Check for media devices support
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert('متصفحك لا يدعم الوصول إلى الكاميرا. يرجى تحديث المتصفح.');
-            startBtn.disabled = true;
-        }
-
-        // Start Camera
-        startBtn.addEventListener('click', async () => {
-            try {
-                if (socket.disconnected) {
-                    socket.connect();
-                }
-
-                localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
-                cameraStream = localStream;
-                localVideo.srcObject = localStream;
-                // Try to play the local video immediately
-                localVideo.autoplay = true;
-                localVideo.muted = true;
-                await localVideo.play().catch(() => {
-                    console.warn('Local video autoplay blocked, user interaction required.');
-                });
-
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                skipBtn.disabled = false;
-                cameraToggle.disabled = false;
-                micToggle.disabled = false;
-                recordBtn.disabled = false;
-                screenshotBtn.disabled = false;
-                screenShareBtn.disabled = false;
-                emojiBtn.disabled = false;
-                messageInput.disabled = false;
-                sendBtn.disabled = false;
-                updateStatus('جاهز - In Ready Mode', 'disconnected');
-                addMessage('النظام: الكاميرا جاهزة! جاري البحث عن شخص...', 'system');
-            } catch (error) {
-                let errorMessage = 'خطأ في الوصول إلى الكاميرا: ';
-                if (error.name === 'NotAllowedError') {
-                    errorMessage += 'يرجى السماح بالوصول إلى الكاميرا والميكروفون.';
-                } else if (error.name === 'NotFoundError') {
-                    errorMessage += 'لم يتم العثور على كاميرا أو ميكروفون.';
-                } else if (error.name === 'NotReadableError') {
-                    errorMessage += 'الكاميرا أو الميكروفون مستخدم من تطبيق آخر.';
-                } else {
-                    errorMessage += error.message;
-                }
-                alert(errorMessage);
-                console.error('Camera error:', error);
-            }
+        // Start Chat
+        startBtn.addEventListener('click', () => {
+            startSection.style.display = 'none';
+            chatSection.style.display = 'flex';
+            updateStatus('جاري البحث عن شخص...', 'disconnected');
+            addMessage('النظام: جاري البحث عن شخص للدردشة معه...', 'system');
         });
 
         // Socket.io Events
@@ -937,62 +488,19 @@
             addMessage('النظام: ' + data.message, 'system');
         });
 
-        socket.on('user-connected', async (data) => {
-            console.log('User connected:', data.partnerId, 'initiator:', data.initiator);
+        socket.on('user-connected', (data) => {
+            console.log('User connected:', data.partnerId);
             partnerId = data.partnerId;
             isConnected = true;
-            noUserMessage.style.display = 'none';
             updateStatus('متصل بشخص ما ✓', 'connected');
-            addMessage('System: Connected to a random person!', 'system');
-            startCallTimer();
-            recordBtn.disabled = false;
-            screenshotBtn.disabled = false;
-            screenShareBtn.disabled = false;
-            emojiBtn.disabled = false;
-            playSound('record');
-            showNotification('👋 You are connected!');
+            addMessage('النظام: متصل بمستخدم عشوائي!', 'system');
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
             messageCount = 0;
             messageCountBadge.textContent = '0';
-            
+
             if (vibrationEnabled && 'vibrate' in navigator) {
                 navigator.vibrate([100, 50, 100]);
-            }
-            
-            // Create peer connection
-            await createPeerConnection();
-
-            // Initiator starts the offer; callee waits for incoming offer
-            if (data.initiator) {
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                socket.emit('offer', { to: partnerId, offer });
-            }
-        });
-
-        socket.on('offer', async (data) => {
-            console.log('Received offer from:', data.from);
-            
-            if (!peerConnection) {
-                await createPeerConnection();
-            }
-            
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            socket.emit('answer', { to: data.from, answer });
-        });
-
-        socket.on('answer', async (data) => {
-            console.log('Received answer from:', data.from);
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-        });
-
-        socket.on('ice-candidate', async (data) => {
-            console.log('Received ICE candidate from:', data.from);
-            try {
-                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch (error) {
-                console.error('Error adding ICE candidate:', error);
             }
         });
 
@@ -1002,237 +510,12 @@
 
         socket.on('user-disconnected', (data) => {
             console.log('User disconnected:', data.message);
-            resetForNextUser();
+            partnerId = null;
+            isConnected = false;
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
             updateStatus('انقطع الاتصال. جاري البحث عن شريك جديد...', 'disconnected');
             addMessage('النظام: ' + (data.message || 'الشريك انقطع.'), 'system');
-        });
-
-        // Stop Camera
-        stopBtn.addEventListener('click', () => {
-            disconnectUser();
-            updateStatus('متوقف - Stopped', 'disconnected');
-        });
-
-        // Toggle Camera
-        cameraToggle.addEventListener('click', () => {
-            if (localStream) {
-                const videoTrack = localStream.getVideoTracks()[0];
-                isCameraOn = !isCameraOn;
-                videoTrack.enabled = isCameraOn;
-                cameraToggle.textContent = isCameraOn ? 'إيقاف الكاميرا' : 'تشغيل الكاميرا';
-                cameraToggle.style.background = isCameraOn ? '#2196F3' : '#f44336';
-                updatePeerConnectionTracks();
-            }
-        });
-
-        // Toggle Microphone
-        micToggle.addEventListener('click', () => {
-            if (localStream) {
-                const audioTrack = localStream.getAudioTracks()[0];
-                isMicOn = !isMicOn;
-                audioTrack.enabled = isMicOn;
-                micToggle.textContent = isMicOn ? 'إيقاف الصوت' : 'تشغيل الصوت';
-                micToggle.style.background = isMicOn ? '#2196F3' : '#f44336';
-                updatePeerConnectionTracks();
-            }
-        });
-
-        // Skip User
-        skipBtn.addEventListener('click', () => {
-            socket.emit('skip');
-            resetForNextUser();
-            chatMessages.innerHTML = '';
-            updateStatus('في البحث عن شخص جديد...', 'disconnected');
-            addMessage('النظام: تم التخطي. جاري البحث...', 'system');
-        });
-
-        // Recording
-        recordBtn.addEventListener('click', async () => {
-            if (!isRecording) {
-                startRecording();
-            } else {
-                stopRecording();
-            }
-        });
-
-        async function startRecording() {
-            try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 1280;
-                canvas.height = 720;
-
-                const stream = new MediaStream();
-                
-                if (localStream) {
-                    localStream.getVideoTracks().forEach(track => stream.addTrack(track));
-                    localStream.getAudioTracks().forEach(track => stream.addTrack(track));
-                }
-
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-                recordedChunks = [];
-
-                mediaRecorder.ondataavailable = (event) => {
-                    recordedChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `chat_${Date.now()}.webm`;
-                    a.click();
-                    playSound('download');
-                    showNotification('Video recorded and saved!');
-                };
-
-                mediaRecorder.start();
-                isRecording = true;
-                recordBtn.textContent = '⏹️ Stop Recording';
-                recordingIndicator.classList.add('active');
-                playSound('record');
-                showNotification('Recording started...');
-            } catch (error) {
-                console.error('Recording error:', error);
-                alert('خطأ في التسجيل: ' + error.message);
-            }
-        }
-
-        function stopRecording() {
-            mediaRecorder.stop();
-            isRecording = false;
-            recordBtn.textContent = '🔴 Record';
-            recordingIndicator.classList.remove('active');
-            playSound('stop');
-        }
-
-        // Screenshot
-        screenshotBtn.addEventListener('click', () => {
-            captureScreenshot();
-        });
-
-        function captureScreenshot() {
-            const canvas = document.createElement('canvas');
-            canvas.width = localVideo.videoWidth;
-            canvas.height = localVideo.videoHeight;
-            canvas.getContext('2d').drawImage(localVideo, 0, 0);
-
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `screenshot_${Date.now()}.png`;
-                a.click();
-                playSound('camera');
-                showNotification('📸 Screenshot saved!');
-            });
-        }
-
-        // Screen Share
-        screenShareBtn.addEventListener('click', async () => {
-            if (isScreenSharing) {
-                stopScreenShare();
-            } else {
-                await startScreenShare();
-            }
-        });
-
-        async function startScreenShare() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-                alert('متصفحك لا يدعم مشاركة الشاشة.');
-                return;
-            }
-
-            try {
-                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-                if (!cameraStream && localStream) {
-                    cameraStream = localStream;
-                }
-
-                localVideo.srcObject = screenStream;
-                isScreenSharing = true;
-                screenShareBtn.textContent = '🛑 إيقاف مشاركة الشاشة';
-
-                if (peerConnection) {
-                    const videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-                    const shareTrack = screenStream.getVideoTracks()[0];
-                    if (videoSender && shareTrack) {
-                        await videoSender.replaceTrack(shareTrack);
-                    }
-                }
-
-                showNotification('مشاركة الشاشة نشطة الآن');
-
-                const track = screenStream.getVideoTracks()[0];
-                track.onended = () => stopScreenShare();
-            } catch (error) {
-                console.error('Screen share error:', error);
-                alert('خطأ في تشغيل مشاركة الشاشة: ' + (error.message || error));
-            }
-        }
-
-        function stopScreenShare() {
-            if (!isScreenSharing) return;
-            if (screenStream) {
-                screenStream.getTracks().forEach(track => track.stop());
-                screenStream = null;
-            }
-
-            if (cameraStream) {
-                localVideo.srcObject = cameraStream;
-                if (peerConnection) {
-                    const videoSender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-                    const cameraTrack = cameraStream.getVideoTracks()[0];
-                    if (videoSender && cameraTrack) {
-                        videoSender.replaceTrack(cameraTrack);
-                    }
-                }
-            }
-
-            isScreenSharing = false;
-            screenShareBtn.textContent = '📺 مشاركة الشاشة';
-            showNotification('تم إيقاف مشاركة الشاشة');
-        }
-
-        // Emoji Picker
-        emojiBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            emojiPicker.classList.toggle('show');
-        });
-
-        document.querySelectorAll('.emoji-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                messageInput.value += e.target.textContent;
-                messageInput.focus();
-                emojiPicker.classList.remove('show');
-            });
-        });
-
-        // Close emoji picker when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!emojiPicker.contains(event.target) && event.target !== emojiBtn) {
-                emojiPicker.classList.remove('show');
-            }
-        });
-
-        // Close emoji picker on Escape
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                emojiPicker.classList.remove('show');
-            }
-        });
-
-        // Share link button
-        shareBtn.addEventListener('click', async () => {
-            const url = window.location.href;
-            try {
-                await navigator.clipboard.writeText(url);
-                showNotification('تم نسخ الرابط إلى الحافظة!');
-            } catch (err) {
-                alert('تعذر نسخ الرابط. الرجاء نسخه يدوياً: ' + url);
-            }
         });
 
         // Settings Modal
@@ -1250,43 +533,6 @@
             }
         });
 
-        // Quality Buttons
-        document.querySelectorAll('.quality-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                videoQuality = e.target.dataset.quality;
-                showNotification(`Video quality changed to ${videoQuality}p`);
-
-                if (localStream) {
-                    // Re-apply stream at new quality
-                    localStream.getTracks().forEach(track => track.stop());
-                    try {
-                        localStream = await navigator.mediaDevices.getUserMedia(getVideoConstraints());
-                        localVideo.srcObject = localStream;
-                        if (!peerConnection) return;
-                        // Update existing peer connection tracks
-                        const senders = peerConnection.getSenders();
-                        const videoTrack = localStream.getVideoTracks()[0];
-                        const audioTrack = localStream.getAudioTracks()[0];
-
-                        if (videoTrack) {
-                            const sender = senders.find(s => s.track && s.track.kind === 'video');
-                            if (sender) sender.replaceTrack(videoTrack);
-                        }
-
-                        if (audioTrack) {
-                            const sender = senders.find(s => s.track && s.track.kind === 'audio');
-                            if (sender) sender.replaceTrack(audioTrack);
-                        }
-
-                    } catch (error) {
-                        console.error('Error updating video quality:', error);
-                    }
-                }
-            });
-        });
-
         // Sound Toggle
         document.getElementById('soundToggle').addEventListener('change', (e) => {
             soundEnabled = e.target.checked;
@@ -1295,12 +541,6 @@
         // Vibration Toggle
         document.getElementById('vibrationToggle').addEventListener('change', (e) => {
             vibrationEnabled = e.target.checked;
-        });
-
-        // Volume Control
-        document.getElementById('volumeControl').addEventListener('change', (e) => {
-            const volume = e.target.value / 100;
-            remoteVideo.volume = volume;
         });
 
         // Dark Mode
@@ -1314,103 +554,6 @@
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
             darkModeBtn.textContent = '☀️';
-        }
-
-        // Chat Toggle for Mobile
-        chatToggle.addEventListener('click', () => {
-            chatSection.classList.toggle('collapsed');
-            chatToggle.textContent = chatSection.classList.contains('collapsed') ? '⬆️' : '💬';
-        });
-
-        // Show chat toggle on mobile
-        if (window.innerWidth <= 768) {
-            chatToggle.style.display = 'block';
-        }
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 768) {
-                chatToggle.style.display = 'block';
-            } else {
-                chatToggle.style.display = 'none';
-                chatSection.classList.remove('collapsed');
-            }
-        });
-
-        // Call Timer
-        function startCallTimer() {
-            callStartTime = Date.now();
-            timerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-                const minutes = Math.floor(elapsed / 60);
-                const seconds = elapsed % 60;
-                callTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }, 1000);
-        }
-
-        function stopCallTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                callTimer.textContent = '00:00';
-            }
-        }
-
-        // Sound effects
-        function playSound(type) {
-            if (!soundEnabled) return;
-
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            switch (type) {
-                case 'record':
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.1);
-                    break;
-                case 'stop':
-                    oscillator.frequency.value = 400;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.15);
-                    break;
-                case 'camera':
-                    oscillator.frequency.value = 1000;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.05);
-                    break;
-                case 'download':
-                    oscillator.frequency.value = 1200;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.1);
-                    break;
-            }
-        }
-
-        // Notifications
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            if (vibrationEnabled && 'vibrate' in navigator) {
-                navigator.vibrate(50);
-            }
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
         }
 
         // Update online count
@@ -1438,142 +581,13 @@
             }
         }
 
-        // Create Peer Connection
-        async function createPeerConnection() {
-            if (peerConnection) return;
-
-            peerConnection = new RTCPeerConnection(peerConfig);
-
-            // Add local stream tracks
-            if (localStream) {
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
-            }
-
-            // Handle remote stream
-            peerConnection.ontrack = (event) => {
-                console.log('Received remote track:', event.track.kind);
-                if (remoteVideo.srcObject !== event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    remoteVideo.autoplay = true;
-                    remoteVideo.muted = false;
-                    remoteVideo.play().catch(() => {
-                        console.warn('Remote video autoplay blocked, user interaction required.');
-                    });
-                    noUserMessage.style.display = 'none';
-                }
-            };
-
-            // Handle ICE candidates
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    socket.emit('ice-candidate', { 
-                        to: partnerId, 
-                        candidate: event.candidate 
-                    });
-                }
-            };
-
-            // Connection state logging
-            peerConnection.onconnectionstatechange = () => {
-                console.log('Connection state:', peerConnection.connectionState);
-            };
-
-            peerConnection.oniceconnectionstatechange = () => {
-                console.log('ICE connection state:', peerConnection.iceConnectionState);
-            };
-
-            // Keep sending audio/video updates in sync.
-            updatePeerConnectionTracks();
-        }
-
-        function updatePeerConnectionTracks() {
-            if (!peerConnection || !localStream) return;
-
-            const senders = peerConnection.getSenders();
-
-            localStream.getTracks().forEach(track => {
-                const sender = senders.find(s => s.track && s.track.kind === track.kind);
-                if (sender && sender.replaceTrack) {
-                    sender.replaceTrack(track);
-                } else {
-                    peerConnection.addTrack(track, localStream);
-                }
-            });
-        }
-
-        function setPeerVideoTrack(track) {
-            if (!peerConnection || !track) return;
-            const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
-            if (sender && sender.replaceTrack) {
-                sender.replaceTrack(track);
-            }
-        }
-
-        // Disconnect User
-        function resetForNextUser() {
-            if (isScreenSharing) {
-                stopScreenShare();
-            }
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            remoteVideo.srcObject = null;
-            partnerId = null;
-            isConnected = false;
-            noUserMessage.style.display = 'flex';
-            stopCallTimer();
-        }
-
-        function disconnectUser() {
-            if (isScreenSharing) {
-                stopScreenShare();
-            }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-            if (screenStream) {
-                screenStream.getTracks().forEach(track => track.stop());
-                screenStream = null;
-            }
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (isRecording) {
-                stopRecording();
-            }
-            remoteVideo.srcObject = null;
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            skipBtn.disabled = true;
-            cameraToggle.disabled = true;
-            micToggle.disabled = true;
-            recordBtn.disabled = true;
-            screenshotBtn.disabled = true;
-            emojiBtn.disabled = true;
-            isConnected = false;
-            partnerId = null;
-            noUserMessage.style.display = 'flex';
-            localVideo.srcObject = null;
-            stopCallTimer();
-            recordingIndicator.classList.remove('active');
-        }
-
         function addMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             messageDiv.textContent = text;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
+
             if (sender === 'other') {
                 messageCount++;
                 messageCountBadge.textContent = messageCount;
@@ -1586,8 +600,46 @@
             status.className = `status ${className}`;
         }
 
+        // Sound effects
+        function playSound(type) {
+            if (!soundEnabled) return;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            switch (type) {
+                case 'camera':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+            }
+        }
+
+        // Notifications
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            if (vibrationEnabled && 'vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
         // Initialize
-        addMessage('اضغط "ابدأ الكاميرا" للبدء - Click "ابدأ الكاميرا" to start', 'system');
+        addMessage('اضغط "ابدأ الدردشة" للبدء - Click "Start Chat" to begin', 'system');
     </script>
     <script>
         // Register service worker for PWA

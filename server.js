@@ -71,30 +71,7 @@ io.on('connection', (socket) => {
         waitingQueue.push(socket.id);
         socket.emit('waiting', { message: 'في انتظار شخص آخر...' });
     }
-    // Handle WebRTC offer
-    socket.on('offer', (data) => {
-        const { to, offer } = data;
-        if (users.get(to)) {
-            io.to(to).emit('offer', { from: socket.id, offer });
-        }
-    });
-    
-    // Handle WebRTC answer
-    socket.on('answer', (data) => {
-        const { to, answer } = data;
-        if (users.get(to)) {
-            io.to(to).emit('answer', { from: socket.id, answer });
-        }
-    });
-    
-    // Handle ICE candidates
-    socket.on('ice-candidate', (data) => {
-        const { to, candidate } = data;
-        if (users.get(to)) {
-            io.to(to).emit('ice-candidate', { from: socket.id, candidate });
-        }
-    });
-    
+
     // Handle messages
     socket.on('message', (data) => {
         const user = users.get(socket.id);

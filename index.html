@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <title>شبكة اجتماعية - Social Network</title>
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -394,6 +396,35 @@
             background: #165bc0;
         }
 
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #65676b;
+            position: relative;
+        }
+
+        .divider:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            position: relative;
+            background: white;
+            padding: 0 10px;
+        }
+
+        #googleSignInButton {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .container {
@@ -477,6 +508,12 @@
                 <h2>مرحباً بك 👋</h2>
                 <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
             </div>
+
+            <!-- Google Sign-In Button -->
+            <div id="googleSignInButton"></div>
+
+            <div class="divider"><span>أو</span></div>
+
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>اسم المستخدم</label>
@@ -518,6 +555,62 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Google Sign-In Callback
+        function handleCredentialResponse(response) {
+            console.log("Google Sign-In Response:", response);
+
+            // أرسل التوكن إلى الخادم
+            fetch('/api/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: response.credential })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert('خطأ في المصادقة: ' + data.error);
+                } else {
+                    currentUser = {
+                        userId: data.userId,
+                        username: data.email.split('@')[0],
+                        name: data.name,
+                        email: data.email,
+                        picture: data.picture
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('authToken', data.token);
+                    closeModal('loginModal');
+                    showMainApp();
+                    loadFeed();
+                    socket.emit('user-online', currentUser);
+                }
+            })
+            .catch(err => {
+                console.error('Google auth error:', err);
+                alert('فشل تسجيل الدخول عبر Google');
+            });
+        }
+
+        // Initialize Google Sign-In
+        function initializeGoogleSignIn() {
+            if (window.google && window.google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // استبدل بـ Client ID الخاص بك
+                    callback: handleCredentialResponse
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignInButton'),
+                    { 
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'signup_with',
+                        locale: 'ar'
+                    }
+                );
+            }
+        }
+
         // State
         let currentUser = null;
         const socket = io();
@@ -530,6 +623,7 @@
                 showMainApp();
                 loadFeed();
             } else {
+                initializeGoogleSignIn();
                 document.getElementById('loginModal').classList.add('show');
             }
         }
@@ -687,6 +781,7 @@
 
         function logout() {
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
             currentUser = null;
             location.reload();
         }

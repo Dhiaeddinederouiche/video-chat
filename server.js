@@ -6,6 +6,8 @@ const sqlite3 = require('sqlite3').verbose();
 const { v4: uuidv4 } = require('uuid');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +19,11 @@ const io = socketIo(server, {
         credentials: true
     }
 });
+
+// Google OAuth Configuration
+// استبدل بـ Google Client ID الخاص بك
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // Middleware
 app.use(bodyParser.json());
@@ -108,6 +115,69 @@ function initializeDatabase() {
 const onlineUsers = new Map();
 
 // API Routes
+
+// Google OAuth Login
+app.post('/api/auth/google', async (req, res) => {
+    const { token } = req.body;
+
+    try {
+        // تحقق من صحة التوكن من Google
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        const googleId = payload.sub;
+        const email = payload.email;
+        const name = payload.name;
+        const picture = payload.picture;
+
+        // ابحث عن المستخدم في قاعدة البيانات
+        db.get(
+            `SELECT * FROM users WHERE email = ?`,
+            [email],
+            (err, user) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+
+                let userId = user ? user.id : uuidv4();
+
+                if (!user) {
+                    // أنشئ مستخدم جديد
+                    db.run(
+                        `INSERT INTO users (id, username, email, name, avatar) VALUES (?, ?, ?, ?, ?)`,
+                        [userId, email.split('@')[0], email, name, picture],
+                        function(err) {
+                            if (err) {
+                                return res.status(500).json({ error: 'Failed to create user' });
+                            }
+                            // أرسل JWT token
+                            const jwtToken = jwt.sign(
+                                { userId, email, name },
+                                process.env.JWT_SECRET || 'your-secret-key',
+                                { expiresIn: '7d' }
+                            );
+                            res.json({ userId, name, email, picture, token: jwtToken });
+                        }
+                    );
+                } else {
+                    // أرسل JWT token للمستخدم الموجود
+                    const jwtToken = jwt.sign(
+                        { userId, email, name },
+                        process.env.JWT_SECRET || 'your-secret-key',
+                        { expiresIn: '7d' }
+                    );
+                    res.json({ userId, name, email, picture, token: jwtToken });
+                }
+            }
+        );
+    } catch (error) {
+        console.error('Google auth error:', error);
+        res.status(401).json({ error: 'Invalid token' });
+    }
+});
 
 // Create/Login user
 app.post('/api/user', (req, res) => {

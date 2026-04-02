@@ -92,12 +92,15 @@ io.on('connection', (socket) => {
     // Handle messages
     socket.on('message', (data) => {
         const user = users.get(socket.id);
+        console.log('server received message from', socket.id, 'data', data, 'connectedWith', user ? user.connectedWith : null);
         if (user && user.connectedWith) {
             io.to(user.connectedWith).emit('message', {
                 from: socket.id,
                 text: data.text,
                 timestamp: new Date()
             });
+        } else {
+            socket.emit('notification', { message: 'لم يتم العثور على شريك، الرسالة لم تُرسل.' });
         }
     });
     

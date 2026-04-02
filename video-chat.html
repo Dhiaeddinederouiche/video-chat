@@ -515,6 +515,7 @@
         });
 
         socket.on('message', (data) => {
+            console.log('received message event:', data);
             addMessage(data.text, 'other');
         });
 
@@ -588,6 +589,7 @@
                 return;
             }
 
+            console.log('sending message', { message, partnerId });
             addMessage(message, 'own');
             messageInput.value = '';
 

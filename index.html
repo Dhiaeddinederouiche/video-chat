@@ -813,6 +813,35 @@
             padding: 0 12px;
         }
 
+        /* Auth Tabs */
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .auth-tab:hover {
+            color: var(--primary-color);
+        }
+
         /* Messages */
         .messages-container {
             position: fixed;
@@ -1816,29 +1845,47 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">مرحباً بك 👋</h2>
+                <h2 class="modal-title">تسجيل الدخول</h2>
                 <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
             </div>
 
-            <!-- Google Sign-In Button -->
-            <div id="googleSignInButton"></div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showAuthTab('login')">دخول</button>
+                <button class="auth-tab" onclick="showAuthTab('register')">إنشاء حساب</button>
+            </div>
 
-            <div class="divider"><span>أو</span></div>
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>اسم المستخدم أو البريد الإلكتروني</label>
+                    <input type="text" id="loginUsername" placeholder="اسم المستخدم أو البريد" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">دخول</button>
+            </form>
 
-            <form onsubmit="handleLogin(event)">
+            <!-- Register Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
                 <div class="form-group">
                     <label>اسم المستخدم</label>
-                    <input type="text" id="username" placeholder="اختر اسم مستخدم" required>
+                    <input type="text" id="registerUsername" placeholder="اختر اسم مستخدم فريد" required>
                 </div>
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
-                    <input type="email" id="email" placeholder="your@email.com" required>
+                    <input type="email" id="registerEmail" placeholder="your@email.com" required>
                 </div>
                 <div class="form-group">
                     <label>الاسم الكامل</label>
-                    <input type="text" id="fullName" placeholder="اسمك الكامل" required>
+                    <input type="text" id="registerName" placeholder="اسمك الكامل" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">دخول / إنشاء حساب</button>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="registerPassword" placeholder="كلمة مرور قوية" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">إنشاء الحساب</button>
             </form>
         </div>
     </div>
@@ -2030,72 +2077,36 @@
         }
 
         // ===== AUTHENTICATION =====
-        function handleCredentialResponse(response) {
-            console.log("Google Sign-In Response:", response);
 
-            fetch('/api/auth/google', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: response.credential })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    showToast('خطأ في المصادقة: ' + data.error, 'error');
-                } else {
-                    currentUser = {
-                        userId: data.userId,
-                        username: data.email.split('@')[0],
-                        name: data.name,
-                        email: data.email,
-                        picture: data.picture
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    localStorage.setItem('authToken', data.token);
-                    closeModal('loginModal');
-                    showMainApp();
-                    loadFeed();
-                    loadStories();
-                    loadFriends();
-                    socket.emit('user-online', currentUser);
-                }
-            })
-            .catch(err => {
-                console.error('Google auth error:', err);
-                showToast('فشل تسجيل الدخول عبر Google', 'error');
-            });
+        // Helper function to get auth headers
+        function getAuthHeaders(includeContentType = true) {
+            const token = localStorage.getItem('authToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            if (includeContentType) headers['Content-Type'] = 'application/json';
+            return headers;
         }
 
-        function initializeGoogleSignIn() {
-            if (window.google && window.google.accounts) {
-                google.accounts.id.initialize({
-                    client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
-                    callback: handleCredentialResponse
-                });
+        function showAuthTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-                google.accounts.id.renderButton(
-                    document.getElementById('googleSignInButton'),
-                    {
-                        theme: 'outline',
-                        size: 'large',
-                        text: 'signup_with',
-                        locale: 'ar'
-                    }
-                );
-            }
+            // Show/hide forms
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
         }
 
         function handleLogin(event) {
             event.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const name = document.getElementById('fullName').value;
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
 
-            fetch('/api/user', {
+            fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, name })
+                body: JSON.stringify({ username, password })
             })
             .then(res => res.json())
             .then(data => {
@@ -2105,9 +2116,12 @@
                     currentUser = {
                         userId: data.userId,
                         username: data.username,
-                        name: data.name
+                        name: data.name,
+                        email: data.email,
+                        avatar: data.avatar
                     };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('authToken', data.token);
                     closeModal('loginModal');
                     showMainApp();
                     loadFeed();
@@ -2115,7 +2129,54 @@
                     loadFriends();
 
                     socket.emit('user-online', currentUser);
+                    showToast('تم تسجيل الدخول بنجاح!', 'success');
                 }
+            })
+            .catch(err => {
+                console.error('Login error:', err);
+                showToast('فشل في تسجيل الدخول', 'error');
+            });
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const name = document.getElementById('registerName').value;
+            const password = document.getElementById('registerPassword').value;
+
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, name, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    currentUser = {
+                        userId: data.userId,
+                        username: data.username,
+                        name: data.name,
+                        email: data.email
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('authToken', data.token);
+                    closeModal('loginModal');
+                    showMainApp();
+                    loadFeed();
+                    loadStories();
+                    loadFriends();
+
+                    socket.emit('user-online', currentUser);
+                    showToast('تم إنشاء الحساب بنجاح!', 'success');
+                }
+            })
+            .catch(err => {
+                console.error('Register error:', err);
+                showToast('فشل في إنشاء الحساب', 'error');
             });
         }
 
@@ -2155,9 +2216,7 @@
         // ===== FEED MANAGEMENT =====
         function loadFeed() {
             fetch('/api/feed', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                }
+                headers: getAuthHeaders(false)
             })
             .then(res => res.json())
             .then(posts => {
@@ -2255,9 +2314,7 @@
 
             fetch('/api/posts', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                },
+                headers: getAuthHeaders(false),
                 body: formData
             })
             .then(res => res.json())
@@ -2281,10 +2338,7 @@
         function likePost(postId) {
             fetch('/api/likes', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({ postId })
             })
             .then(() => {

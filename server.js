@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { OAuth2Client } = require('google-auth-library');
+const bcrypt = require('bcrypt');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const multer = require('multer');
@@ -45,9 +45,8 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Google OAuth Configuration
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+// JWT Configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
 // File upload configuration
 const storage = multer.diskStorage({
@@ -93,7 +92,7 @@ const authenticateToken = (req, res, next) => {
 
     if (!token) return res.status(401).json({ error: 'Access token required' });
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) return res.status(403).json({ error: 'Invalid token' });
         req.user = user;
         next();
@@ -120,6 +119,7 @@ function initializeDatabase() {
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             name TEXT NOT NULL,
+            password TEXT,
             avatar TEXT DEFAULT 'https://via.placeholder.com/150',
             bio TEXT DEFAULT '',
             cover_photo TEXT,
@@ -276,67 +276,106 @@ function initializeDatabase() {
 
 // ===== AUTHENTICATION =====
 
-// Google OAuth Login
-app.post('/api/auth/google', async (req, res) => {
-    const { token } = req.body;
+// Register new user
+app.post('/api/auth/register', async (req, res) => {
+    const { username, email, name, password } = req.body;
+
+    if (!username || !email || !name || !password) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
 
     try {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: GOOGLE_CLIENT_ID
-        });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = uuidv4();
 
-        const payload = ticket.getPayload();
-        const googleId = payload.sub;
-        const email = payload.email;
-        const name = payload.name;
-        const picture = payload.picture;
-
-        db.get(
-            `SELECT * FROM users WHERE email = ?`,
-            [email],
-            (err, user) => {
+        db.run(
+            `INSERT INTO users (id, username, email, name, password) VALUES (?, ?, ?, ?, ?)`,
+            [userId, username, email, name, hashedPassword],
+            function(err) {
                 if (err) {
+                    if (err.message.includes('UNIQUE constraint failed')) {
+                        return res.status(400).json({ error: 'Username or email already exists' });
+                    }
                     return res.status(500).json({ error: 'Database error' });
                 }
 
-                let userId = user ? user.id : uuidv4();
+                const token = jwt.sign(
+                    { userId, username, email, name },
+                    JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
 
-                if (!user) {
-                    db.run(
-                        `INSERT INTO users (id, username, email, name, avatar) VALUES (?, ?, ?, ?, ?)`,
-                        [userId, email.split('@')[0], email, name, picture],
-                        function(err) {
-                            if (err) {
-                                return res.status(500).json({ error: 'Failed to create user' });
-                            }
-                            const jwtToken = jwt.sign(
-                                { userId, email, name },
-                                process.env.JWT_SECRET || 'your-secret-key',
-                                { expiresIn: '7d' }
-                            );
-                            res.json({ userId, name, email, picture, token: jwtToken });
-                        }
-                    );
-                } else {
-                    const jwtToken = jwt.sign(
-                        { userId, email, name },
-                        process.env.JWT_SECRET || 'your-secret-key',
-                        { expiresIn: '7d' }
-                    );
-                    res.json({ userId, name, email, picture, token: jwtToken });
-                }
+                res.json({
+                    userId,
+                    username,
+                    name,
+                    email,
+                    token,
+                    message: 'User registered successfully'
+                });
             }
         );
     } catch (error) {
-        console.error('Google auth error:', error);
-        res.status(401).json({ error: 'Invalid token' });
+        console.error('Registration error:', error);
+        res.status(500).json({ error: 'Registration failed' });
     }
+});
+
+// Login user
+app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    db.get(
+        `SELECT * FROM users WHERE username = ? OR email = ?`,
+        [username, username],
+        async (err, user) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            if (!user) {
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+
+            try {
+                const passwordMatch = await bcrypt.compare(password, user.password);
+                if (!passwordMatch) {
+                    return res.status(401).json({ error: 'Invalid credentials' });
+                }
+
+                const token = jwt.sign(
+                    { userId: user.id, username: user.username, email: user.email, name: user.name },
+                    JWT_SECRET,
+                    { expiresIn: '7d' }
+                );
+
+                res.json({
+                    userId: user.id,
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.avatar,
+                    token,
+                    message: 'Login successful'
+                });
+            } catch (error) {
+                console.error('Login error:', error);
+                res.status(500).json({ error: 'Login failed' });
+            }
+        }
+    );
 });
 
 // Logout
 app.post('/api/auth/logout', authenticateToken, (req, res) => {
-    // In a real app, you might want to blacklist the token
     res.json({ success: true, message: 'Logged out successfully' });
 });
 
@@ -399,29 +438,21 @@ app.get('/api/users/search', (req, res) => {
 // Get feed (all posts from friends and public posts)
 app.get('/api/feed', authenticateToken, (req, res) => {
     const userId = req.user.userId;
-    const { page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
 
-    // Get posts from user and friends
+    // Simple query first
     const query = `
-        SELECT DISTINCT p.*, u.username, u.name, u.avatar,
-               CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
+        SELECT p.*, u.username, u.name, u.avatar
         FROM posts p
         JOIN users u ON p.user_id = u.id
-        LEFT JOIN likes l ON p.id = l.post_id AND l.user_id = ?
-        WHERE (p.privacy = 'public'
-               OR p.user_id = ?
-               OR p.user_id IN (
-                   SELECT CASE WHEN user_id = ? THEN friend_id ELSE user_id END
-                   FROM friendships
-                   WHERE (user_id = ? OR friend_id = ?) AND status = 'accepted'
-               ))
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?
+        LIMIT 50
     `;
 
-    db.all(query, [userId, userId, userId, userId, userId, limit, offset], (err, posts) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
+    db.all(query, [], (err, posts) => {
+        if (err) {
+            console.error('Feed error:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
         res.json(posts || []);
     });
 });

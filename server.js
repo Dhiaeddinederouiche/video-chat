@@ -101,7 +101,8 @@ const authenticateToken = (req, res, next) => {
 };
 
 // SQLite Database
-const db = new sqlite3.Database(path.join(__dirname, 'social.db'), (err) => {
+const dbPath = process.env.NODE_ENV === 'production' ? '/tmp/social.db' : path.join(__dirname, 'social.db');
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Database connection error:', err);
     } else {
@@ -270,9 +271,6 @@ function initializeDatabase() {
     db.run(`CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id, receiver_id)`);
     db.run(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read)`);
 }
-
-// Store online users
-const onlineUsers = new Map();
 
 // API Routes
 
@@ -1053,7 +1051,7 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, process.env.NODE_ENV === 'production' ? '0.0.0.0' : undefined, () => {
     console.log(`Social Network Server running on http://localhost:${PORT}`);
     console.log('Database initialized');
 });

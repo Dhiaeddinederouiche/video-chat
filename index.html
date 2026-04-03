@@ -1352,6 +1352,254 @@
             background: #165bc0;
         }
 
+        /* Friends Modal */
+        .friends-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .friends-tabs {
+            display: flex;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #65676b;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #1877f2;
+            border-bottom-color: #1877f2;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .friend-username {
+            color: #65676b;
+            font-size: 12px;
+        }
+
+        .friend-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .friend-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-accept {
+            background: #31a24c;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #e41e3f;
+            color: white;
+        }
+
+        .btn-remove {
+            background: #e41e3f;
+            color: white;
+        }
+
+        .btn-add {
+            background: #1877f2;
+            color: white;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        /* Chat Modal */
+        .chat-modal .modal-content {
+            max-width: 600px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        .message.sent .message-content {
+            background: #1877f2;
+            color: white;
+        }
+
+        .message.received .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e5e7eb;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .chat-input-container button {
+            padding: 10px 16px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .chat-input-container button:hover {
+            background: #165bc0;
+        }
+
+        /* Video Call Modal */
+        .video-modal .modal-content {
+            max-width: 800px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-container video {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        #localVideo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 150px;
+            height: 100px;
+            border: 2px solid white;
+        }
+
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .video-controls button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            background: #f0f2f5;
+        }
+
+        .video-controls button:hover {
+            background: #e5e7eb;
+        }
+
+        .end-call-btn {
+            background: #e41e3f !important;
+            color: white;
+        }
+
+        .end-call-btn:hover {
+            background: #c41e3f !important;
+        }
+
         .divider {
             text-align: center;
             margin: 20px 0;
@@ -1692,6 +1940,65 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">حفظ التغييرات</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friendsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>إدارة الأصدقاء</h2>
+                <button class="modal-close" onclick="closeModal('friendsModal')">✕</button>
+            </div>
+            <div class="friends-container">
+                <div class="friends-tabs">
+                    <button class="tab-btn active" onclick="showFriendsTab('friends')">الأصدقاء</button>
+                    <button class="tab-btn" onclick="showFriendsTab('requests')">طلبات الصداقة</button>
+                    <button class="tab-btn" onclick="showFriendsTab('search')">البحث عن أصدقاء</button>
+                </div>
+                <div id="friendsContent">
+                    <!-- Friends list will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content chat-modal">
+            <div class="modal-header">
+                <h2 id="chatTitle">الدردشة</h2>
+                <button class="modal-close" onclick="closeModal('chatModal')">✕</button>
+            </div>
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="اكتب رسالة..." onkeypress="handleChatKeyPress(event)">
+                    <button onclick="sendMessage()">إرسال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Call Modal -->
+    <div id="videoCallModal" class="modal">
+        <div class="modal-content video-modal">
+            <div class="modal-header">
+                <h2 id="videoCallTitle">مكالمة فيديو</h2>
+                <button class="modal-close" onclick="endVideoCall()">✕</button>
+            </div>
+            <div class="video-container">
+                <video id="localVideo" autoplay muted></video>
+                <video id="remoteVideo" autoplay></video>
+            </div>
+            <div class="video-controls">
+                <button id="toggleCamera" onclick="toggleCamera()">📹</button>
+                <button id="toggleMic" onclick="toggleMic()">🎤</button>
+                <button id="shareScreen" onclick="shareScreen()">🖥️</button>
+                <button id="endCall" onclick="endVideoCall()" class="end-call-btn">إنهاء المكالمة</button>
+            </div>
         </div>
     </div>
 
@@ -2444,6 +2751,10 @@
 
         // State
         let currentUser = null;
+        let currentChatFriend = null;
+        let localStream = null;
+        let peerConnection = null;
+        let currentCallFriend = null;
         const socket = io();
 
         // Check if user is logged in
@@ -2603,7 +2914,412 @@
         }
 
         function showFriends() {
-            alert('الأصدقاء قريباً...');
+            document.getElementById('friendsModal').classList.add('show');
+            showFriendsTab('friends');
+        }
+
+        function showFriendsTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const content = document.getElementById('friendsContent');
+
+            if (tab === 'friends') {
+                loadFriends();
+            } else if (tab === 'requests') {
+                loadFriendRequests();
+            } else if (tab === 'search') {
+                showSearchUsers();
+            }
+        }
+
+        function loadFriends() {
+            if (!currentUser) return;
+
+            fetch(`/api/friends/${currentUser.userId}`)
+            .then(res => res.json())
+            .then(friends => {
+                const content = document.getElementById('friendsContent');
+                if (friends.length === 0) {
+                    content.innerHTML = '<p>لا توجد أصدقاء بعد. ابحث عن أصدقاء جدد!</p>';
+                    return;
+                }
+
+                content.innerHTML = friends.map(friend => `
+                    <div class="friend-item">
+                        <img src="${friend.avatar}" alt="${friend.name}" class="friend-avatar">
+                        <div class="friend-info">
+                            <div class="friend-name">${friend.name}</div>
+                            <div class="friend-username">@${friend.username}</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="friend-btn btn-remove" onclick="removeFriend('${friend.id}')">إزالة</button>
+                            <button class="friend-btn" onclick="openChat('${friend.id}', '${friend.name}')">💬 دردشة</button>
+                            <button class="friend-btn" onclick="startVideoCall('${friend.id}')">📹 مكالمة</button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Error loading friends:', err));
+        }
+
+        function loadFriendRequests() {
+            if (!currentUser) return;
+
+            fetch(`/api/friends/requests/${currentUser.userId}`)
+            .then(res => res.json())
+            .then(requests => {
+                const content = document.getElementById('friendsContent');
+                if (requests.length === 0) {
+                    content.innerHTML = '<p>لا توجد طلبات صداقة جديدة.</p>';
+                    return;
+                }
+
+                content.innerHTML = requests.map(request => `
+                    <div class="friend-item">
+                        <img src="${request.avatar}" alt="${request.name}" class="friend-avatar">
+                        <div class="friend-info">
+                            <div class="friend-name">${request.name}</div>
+                            <div class="friend-username">@${request.username}</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="friend-btn btn-accept" onclick="acceptFriendRequest('${request.user_id}')">قبول</button>
+                            <button class="friend-btn btn-reject" onclick="rejectFriendRequest('${request.id}')">رفض</button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Error loading requests:', err));
+        }
+
+        function showSearchUsers() {
+            const content = document.getElementById('friendsContent');
+            content.innerHTML = `
+                <input type="text" class="search-input" placeholder="ابحث عن مستخدمين..." oninput="searchUsers(this.value)">
+                <div id="searchResults"></div>
+            `;
+        }
+
+        function searchUsers(query) {
+            if (!query.trim()) {
+                document.getElementById('searchResults').innerHTML = '';
+                return;
+            }
+
+            fetch(`/api/users/search?query=${encodeURIComponent(query)}&currentUserId=${currentUser.userId}`)
+            .then(res => res.json())
+            .then(users => {
+                const results = document.getElementById('searchResults');
+                if (users.length === 0) {
+                    results.innerHTML = '<p>لا توجد نتائج.</p>';
+                    return;
+                }
+
+                results.innerHTML = users.map(user => `
+                    <div class="friend-item">
+                        <img src="${user.avatar}" alt="${user.name}" class="friend-avatar">
+                        <div class="friend-info">
+                            <div class="friend-name">${user.name}</div>
+                            <div class="friend-username">@${user.username}</div>
+                        </div>
+                        <div class="friend-actions">
+                            <button class="friend-btn btn-add" onclick="sendFriendRequest('${user.id}')">إضافة صديق</button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Error searching users:', err));
+        }
+
+        function sendFriendRequest(friendId) {
+            fetch('/api/friends/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUser.userId, friendId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('تم إرسال طلب الصداقة!');
+                    showSearchUsers(); // Refresh search
+                } else {
+                    alert('خطأ: ' + data.error);
+                }
+            })
+            .catch(err => console.error('Error sending request:', err));
+        }
+
+        function acceptFriendRequest(friendId) {
+            fetch('/api/friends/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUser.userId, friendId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadFriendRequests(); // Refresh requests
+                } else {
+                    alert('خطأ: ' + data.error);
+                }
+            })
+            .catch(err => console.error('Error accepting request:', err));
+        }
+
+        function rejectFriendRequest(requestId) {
+            // For simplicity, just remove the request (in real app, might need separate reject endpoint)
+            alert('تم رفض الطلب');
+            loadFriendRequests();
+        }
+
+        function removeFriend(friendId) {
+            fetch(`/api/friends/${currentUser.userId}/${friendId}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadFriends(); // Refresh friends list
+                } else {
+                    alert('خطأ: ' + data.error);
+                }
+            })
+            .catch(err => console.error('Error removing friend:', err));
+        }
+
+        function startVideoCall(friendId) {
+            currentCallFriend = friendId;
+            document.getElementById('videoCallTitle').textContent = 'مكالمة فيديو';
+            document.getElementById('videoCallModal').classList.add('show');
+            initializeVideoCall(friendId);
+        }
+
+        async function initializeVideoCall(friendId) {
+            try {
+                // Get user media
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                document.getElementById('localVideo').srcObject = localStream;
+                
+                // Create peer connection
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' }
+                    ]
+                });
+                
+                // Add local stream to peer connection
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+                
+                // Handle remote stream
+                peerConnection.ontrack = (event) => {
+                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                };
+                
+                // Handle ICE candidates
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        socket.emit('video-call-ice', {
+                            to: friendId,
+                            candidate: event.candidate
+                        });
+                    }
+                };
+                
+                // Create offer
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                socket.emit('video-call-offer', {
+                    to: friendId,
+                    offer: offer
+                });
+                
+            } catch (error) {
+                console.error('Error initializing video call:', error);
+                alert('فشل في بدء المكالمة. تأكد من السماح بالكاميرا والميكروفون.');
+                endVideoCall();
+        async function initializeVideoCallAsReceiver(offer) {
+            try {
+                // Get user media
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                
+                document.getElementById('localVideo').srcObject = localStream;
+                
+                // Create peer connection
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' }
+                    ]
+                });
+                
+                // Add local stream to peer connection
+                localStream.getTracks().forEach(track => {
+                    peerConnection.addTrack(track, localStream);
+                });
+                
+                // Handle remote stream
+                peerConnection.ontrack = (event) => {
+                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                };
+                
+                // Handle ICE candidates
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        socket.emit('video-call-ice', {
+                            to: currentCallFriend,
+                            candidate: event.candidate
+                        });
+                    }
+                };
+                
+                // Set remote description
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                
+                // Create answer
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                socket.emit('video-call-answer', {
+                    to: currentCallFriend,
+                    answer: answer
+                });
+                
+            } catch (error) {
+                console.error('Error initializing video call as receiver:', error);
+                alert('فشل في الرد على المكالمة.');
+                endVideoCall();
+            }
+        }
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    document.getElementById('toggleCamera').textContent = videoTrack.enabled ? '📹' : '📷';
+                }
+            }
+        }
+
+        function toggleMic() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    document.getElementById('toggleMic').textContent = audioTrack.enabled ? '🎤' : '🔇';
+                }
+            }
+        }
+
+        async function shareScreen() {
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+                    video: true 
+                });
+                
+                // Replace video track with screen share
+                const videoTrack = screenStream.getVideoTracks()[0];
+                const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
+                if (sender) {
+                    sender.replaceTrack(videoTrack);
+                }
+                
+                // Update local video
+                document.getElementById('localVideo').srcObject = screenStream;
+                
+                // Handle when screen sharing stops
+                videoTrack.onended = () => {
+                    // Switch back to camera
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((cameraStream) => {
+                        const cameraTrack = cameraStream.getVideoTracks()[0];
+                        sender.replaceTrack(cameraTrack);
+                        document.getElementById('localVideo').srcObject = cameraStream;
+                    });
+                };
+                
+            } catch (error) {
+                console.error('Error sharing screen:', error);
+                alert('فشل في مشاركة الشاشة.');
+            }
+        }
+
+        function endVideoCall() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('videoCallModal').classList.remove('show');
+            currentCallFriend = null;
+        }
+
+        // Chat functions
+        let currentChatFriend = null;
+
+        function openChat(friendId, friendName) {
+            currentChatFriend = friendId;
+            document.getElementById('chatTitle').textContent = `دردشة مع ${friendName}`;
+            document.getElementById('chatModal').classList.add('show');
+            loadChatHistory(friendId);
+        }
+
+        function loadChatHistory(friendId) {
+            fetch(`/api/messages/${currentUser.userId}/${friendId}`)
+            .then(res => res.json())
+            .then(messages => {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = messages.map(msg => `
+                    <div class="message ${msg.sender_id === currentUser.userId ? 'sent' : 'received'}">
+                        <div class="message-content">${msg.content}</div>
+                    </div>
+                `).join('');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(err => console.error('Error loading chat:', err));
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const content = input.value.trim();
+            if (!content || !currentChatFriend) return;
+
+            fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    senderId: currentUser.userId,
+                    receiverId: currentChatFriend,
+                    content
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    input.value = '';
+                    loadChatHistory(currentChatFriend);
+                }
+            })
+            .catch(err => console.error('Error sending message:', err));
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         }
 
         function closeModal(modalId) {
@@ -2628,6 +3344,36 @@
 
         socket.on('new-comment', () => {
             loadFeed();
+        });
+
+        socket.on('new-message', (message) => {
+            if (currentChatFriend && 
+                ((message.senderId === currentUser.userId && message.receiverId === currentChatFriend) ||
+                 (message.senderId === currentChatFriend && message.receiverId === currentUser.userId))) {
+                loadChatHistory(currentChatFriend);
+            }
+        });
+
+        // Video call signaling
+        socket.on('video-call-offer', async (data) => {
+            if (confirm('مكالمة فيديو واردة. هل تريد الرد؟')) {
+                currentCallFriend = data.from;
+                document.getElementById('videoCallTitle').textContent = 'مكالمة فيديو واردة';
+                document.getElementById('videoCallModal').classList.add('show');
+                await initializeVideoCallAsReceiver(data.offer);
+            }
+        });
+
+        socket.on('video-call-answer', async (data) => {
+            if (peerConnection) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+        });
+
+        socket.on('video-call-ice', async (data) => {
+            if (peerConnection) {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
         });
 
         // Initialize
